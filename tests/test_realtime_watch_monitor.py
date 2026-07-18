@@ -136,7 +136,7 @@ class RealtimeWatchTests(unittest.TestCase):
 
     def test_holding_breaks_risk_line_only_after_two_minutes(self) -> None:
         item = {
-            "code": "000988.SZ", "name": "华工科技", "quantity": 300, "cost": 162.0,
+            "code": "000988.SZ", "name": "测试持仓A", "quantity": 300, "cost": 10.0,
             "levels": {"support": 157.8, "risk": 153.5, "recovery": 161.3, "strength": 165.0},
             "rules": {},
         }
@@ -154,7 +154,7 @@ class RealtimeWatchTests(unittest.TestCase):
 
     def test_holding_recovery_requires_two_five_minute_closes(self) -> None:
         item = {
-            "code": "002281.SZ", "name": "光迅科技", "quantity": 100, "cost": 176.0,
+            "code": "002281.SZ", "name": "测试持仓B", "quantity": 100, "cost": 20.0,
             "levels": {"support": 233.0, "risk": 229.0, "recovery": 238.5, "strength": 245.0},
             "rules": {},
         }
@@ -284,7 +284,7 @@ class RealtimeWatchTests(unittest.TestCase):
 
     def test_risk_escalated_message_uses_plain_reduce_or_sell_guidance(self) -> None:
         item = {
-            "code": "000988.SZ", "name": "华工科技", "quantity": 300, "cost": 162.0,
+            "code": "000988.SZ", "name": "测试持仓A", "quantity": 300, "cost": 10.0,
             "levels": {"support": 157.8, "risk": 153.5, "recovery": 161.3, "strength": 165.0},
             "rules": {},
         }
@@ -300,11 +300,11 @@ class RealtimeWatchTests(unittest.TestCase):
         message = build_message(decision)
         self.assertEqual("RISK_ESCALATED", decision.state)
         self.assertEqual(0, message.count("\n"))
-        self.assertIn("华工科技现价153.00", message)
+        self.assertIn("测试持仓A现价153.00", message)
         self.assertIn("已跌破风险线", message)
         self.assertIn("建议卖出一部分做止损风控", message)
         self.assertIn("AI审核：需要", message)
-        self.assertIn("如需审核请回复：审核 华工科技 000988.SZ 2026-07-13T09:44 跌破风险线", message)
+        self.assertIn("如需审核请回复：审核 测试持仓A 000988.SZ 2026-07-13T09:44 跌破风险线", message)
 
     def test_cc_connect_discovers_latest_active_session_per_platform(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -587,9 +587,9 @@ class RealtimeWatchTests(unittest.TestCase):
     def test_holding_notifications_exclude_recovered_and_strengthened_states(self) -> None:
         holding = {
             "code": "002281.SZ",
-            "name": "光迅科技",
+            "name": "测试持仓B",
             "quantity": 100,
-            "cost": 176.0,
+            "cost": 20.0,
             "levels": {"support": 233.0, "risk": 229.0, "recovery": 238.5, "strength": 245.0},
             "rules": {},
             "sector": {"secid": "90.BK0448", "references": ["300308.SZ"]},

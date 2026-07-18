@@ -7,7 +7,14 @@ __pycache__/
 *.sqlite
 *.sqlite3
 data/
-reports/
+reports/*
+!reports/workflow/
+reports/workflow/*
+!reports/workflow/*.md
+!reports/workflow/current_workflow_state.example.json
+reports/workflow/current_workflow_state.json
+reports/workflow/current_workflow_state.md
+reports/workflow/history/
 logs/
 runtime/
 config/realtime_watchlist.json
@@ -16,3 +23,6 @@ config/telegram_bot.json
 .cc-connect/
 .codex/
 *.zip
+desktop-*.png
+backups/
+股票策略研究室/reports/

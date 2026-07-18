@@ -25,6 +25,56 @@ API 模式不会自动读取 ChatGPT/Codex 账户模式里的历史聊天记录�
 - 不承诺收益。
 - 不把分析结果写成确定性买卖建议。
 
+## 当前正式版本
+
+截至 2026-07-18，当前正式工作流能力为第六轮 `1.0.0-rc1` 候选发布版：
+
+- 工作流状态骨架：`scoring_system/workflow_state.py`
+- 系统性风险总闸：`scoring_system/systemic_risk_gate.py`
+- 人工六爻只降级校准：`scoring_system/hexagram_calibration.py`
+- 周度工作流编排与日内反转观察：`scoring_system/workflow_orchestrator.py`
+- 统一启动入口：`scripts/run_project.py`
+- 环境检查入口：`scripts/run_setup_check.py`
+- 总控 Skill：`skills/stock-ai-workflow-controller/SKILL.md`
+- 封版演练与发布审查：`scoring_system/workflow_release_drill.py`
+- 架构说明：`docs/WORKFLOW_ARCHITECTURE.md`
+- 发布清单：`docs/RELEASE_CHECKLIST.md`
+- 版本号：`VERSION`
+- 更新记录：`CHANGELOG.md`
+
+新 Codex 或新电脑接手时，优先读取本文件、`WORKFLOW_QUICKSTART.md` 和总控 Skill，再运行 `scripts/run_project.py setup` 与 `scripts/run_project.py status`。
+
+固定优先级：
+
+1. 数据可靠性。
+2. 系统性风险总闸。
+3. 现实市场分析。
+4. 六爻只降级校准。
+5. 前夜候选。
+6. 盘中否决。
+7. 持仓管理。
+8. 复盘。
+
+工作流阶段：
+
+- `WEEKEND_REALITY_PENDING`
+- `WEEKEND_HEXAGRAM_PENDING`
+- `WEEKLY_STRATEGY_READY`
+- `NIGHT_PLAN_READY`
+- `INTRADAY_CHECK_PENDING`
+- `INTRADAY_CHECK_COMPLETED`
+- `CLOSING_REVIEW_COMPLETED`
+- `WEEKLY_REVIEW_COMPLETED`
+
+便携边界：
+
+- `.env`、真实工作流状态、真实持仓、私密消息配置和本地缓存不得提交。
+- 示例配置使用 `.env.example`、`config/project_config.example.yaml` 和 `reports/workflow/current_workflow_state.example.json`。
+- 六爻只能降级现实结论，不能升级。
+- 系统性风险总闸未解除前，不得通过六爻、有利窗口或反转观察恢复买入。
+- 盘中只检查前夜首选和替补，不生成第三只股票。
+- 迁移和新克隆恢复见 `docs/MIGRATION_GUIDE.md`。
+
 ## 当前核心口径
 
 对用户输出统一叫“股票AI交易助手”，不要让用户理解成多个内部模型在互相冲突。
@@ -140,14 +190,9 @@ API 模式不会自动读取 ChatGPT/Codex 账户模式里的历史聊天记录�
 
 用户实际持仓只做盯盘，不纳入完整交易执行链：
 
-- 行云科技 `300209.SZ`
-- 建业股份 `603948.SH`
-- 万润股份 `002643.SZ`
-- 广钢气体 `688548.SH`
-- 格科微 `688728.SH`
-- 有研硅 `688432.SH`
-
-用户曾写“科格微”，工程核对后按“格科微 688728.SH”处理。
+- 真实持仓清单以本地私密配置或用户当次输入为准。
+- 公开上下文不记录真实持仓名称、数量、成本或账户信息。
+- 若用户输入疑似错误名称，需按当次任务重新核对，不沿用公开文档里的旧清单。
 
 盯盘口径：
 
@@ -240,8 +285,8 @@ API 模式不会自动读取 ChatGPT/Codex 账户模式里的历史聊天记录�
 - 入口：`scripts/run_realtime_watch_monitor.py`
 - 数据：东方财富一分钟分时、盘中资金流、板块分时和参照股；历史成交基准走统一 Tushare 客户端
 - 消息：通过 CC Connect 项目 `codex-weixin` 投递到活跃微信和飞书会话
-- 当前监控：恒瑞医药、药明康德、中国船舶及对应板块
-- 当前持仓保护监控：华工科技 300股、成本162；光迅科技100股、成本176
+- 当前监控：以本地只读配置为准
+- 当前持仓保护监控：以本地私密配置为准，公开文档不记录真实持仓和成本
 - 持仓计划必须先拟定、经用户明确确认后再更新盯盘配置；微信/飞书确认的新版方案同样适用
 - 边界：只读、只提醒、不接账户、不自动交易、不真实下单
 
@@ -261,22 +306,22 @@ API 模式不会自动读取 ChatGPT/Codex 账户模式里的历史聊天记录�
 启动新对话或 API 模式时，建议按顺序读取：
 
 1. `PROJECT_CONTEXT.md`
-2. `reports/simulated_live_v1/review/complete_handoff_for_new_chat_20260707.md`
-3. `reports/simulated_live_v1/state/simulated_account_state.json`
-4. `reports/simulated_live_v1/review/trading_model_handoff_retest_20260706.json`
+2. `WORKFLOW_QUICKSTART.md`
+3. `skills/stock-ai-workflow-controller/SKILL.md`
+4. `reports/workflow/current_workflow_state.json`
 5. `PROJECT_STATUS.md`
 6. `DAILY_WORKFLOW.md`
 7. `REPORT_READING_GUIDE.md`
 8. `股票分析工程文件.md`
 
-如果只需要快速接上项目，至少读取第 1-4 项。
+如果只需要快速接上项目，至少读取第 1-4 项，并运行统一入口的 `setup` 和 `status`。
 
 ## 新对话启动提示词
 
 可以直接这样说：
 
 ```text
-请先读取 PROJECT_CONTEXT.md，然后按里面的“关键上下文入口”继续读取项目状态。之后所有回答都按股票AI交易助手当前口径执行：不接真实账户、不自动交易、不编造行情、用户实际持仓只盯盘；最终分析咨询表达遵循 股票分析工程文件.md。
+请先读取 PROJECT_CONTEXT.md、WORKFLOW_QUICKSTART.md 和 skills/stock-ai-workflow-controller/SKILL.md。运行环境检查，读取当前工作流状态，只告诉我当前阶段、缺失条件和下一步。不要修改评分、策略、阈值或状态，除非我明确要求。
 ```
 
 ## 后续维护规则

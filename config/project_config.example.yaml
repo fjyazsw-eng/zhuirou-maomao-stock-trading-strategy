@@ -1,0 +1,41 @@
+project_name: 股票AI交易助手
+project_version: workflow-portable-v1
+
+paths:
+  workflow_state: reports/workflow/current_workflow_state.json
+  workflow_history: reports/workflow/history
+  market_database: data/sqlite/market_120d.sqlite
+
+data_sources:
+  tushare:
+    token_env_keys:
+      - TUSHARE_REPLAY_API_KEY
+      - TUSHARE_TOKEN
+      - TUSHARE_TOKEN_PRO
+    use_for:
+      - post_close_daily_data
+      - historical_market_data
+      - sector_membership
+      - light_fundamental_checks
+  eastmoney:
+    use_for:
+      - intraday_temporary_snapshot
+      - read_only_intraday_veto
+
+workflow:
+  default_quantity: 100
+  priority:
+    - data_reliability
+    - systemic_risk_gate
+    - reality_market_analysis
+    - hexagram_downgrade_only
+    - night_candidates
+    - intraday_veto
+    - holding_management
+    - review
+
+safety:
+  real_account_connected: false
+  auto_trading_enabled: false
+  allow_hexagram_upgrade: false
+  allow_intraday_third_candidate: false
