@@ -1,0 +1,67 @@
+﻿{
+    "created_at":  "2026-07-11T12:36:44",
+    "source_root":  "C:\\Users\\HUAWEI\\Documents\\股票AI交易助手",
+    "files":  [
+                  {
+                      "path":  "REALTIME_WATCH_MONITOR.md",
+                      "sha256":  "2B6BBD5090A0F3012E74AB1A2226B4570860C223445BDAA602C2EA0006529255",
+                      "size":  3129
+                  },
+                  {
+                      "path":  "PROJECT_CONTEXT.md",
+                      "sha256":  "A8F255C03A733BBD01EB380B76939F423893DC7DAE032C21D40D2484959707DB",
+                      "size":  10294
+                  },
+                  {
+                      "path":  "PROJECT_STATUS.md",
+                      "sha256":  "9613395D17B7FDB16D2D0B9051F346EADD8655D56153E26C4841923AD64A6B5F",
+                      "size":  2974
+                  },
+                  {
+                      "path":  "config/realtime_watchlist.json",
+                      "sha256":  "C2A4CCC47C96A10C7E6D0CD904404AE6680B1EB000BF460EF149CD834FBCE0A4",
+                      "size":  2906
+                  },
+                  {
+                      "path":  "scoring_system/eastmoney_intraday.py",
+                      "sha256":  "ABFF438728A374C18ED5EF1DB18161B0257C70F98D7A6A7C10779E86631073D3",
+                      "size":  8271
+                  },
+                  {
+                      "path":  "scoring_system/cc_connect_notifier.py",
+                      "sha256":  "97E39950FEA66669381BA20CCCB5B31D783BB60197985F902193D3BFA7521977",
+                      "size":  3142
+                  },
+                  {
+                      "path":  "scoring_system/realtime_watch_monitor.py",
+                      "sha256":  "9DB4B0FC2672EDE84F599115CAFB2927265E24C8EE03F42B7A6995B1937E9E8A",
+                      "size":  25091
+                  },
+                  {
+                      "path":  "scripts/run_realtime_watch_monitor.py",
+                      "sha256":  "6A02360EA558AA17499273182C76F2CFA0ACCA3165AEAF570E3565227C29A26C",
+                      "size":  1278
+                  },
+                  {
+                      "path":  "scripts/start_realtime_watch_monitor_hidden.ps1",
+                      "sha256":  "F6E4E7D2C0079FEE979E12C113EBBAA87589FB1AD3502DED22326879DC1E0C4B",
+                      "size":  1114
+                  },
+                  {
+                      "path":  "scripts/supervise_realtime_watch_monitor.ps1",
+                      "sha256":  "120D428EFF9177D433A52A1D1F01CFE2403DF2AB61D759AF023AD423D43C0AB0",
+                      "size":  666
+                  },
+                  {
+                      "path":  "scripts/install_realtime_watch_monitor.ps1",
+                      "sha256":  "80198A925B372FC822317061A49BFF75B2D3A72CB63C34E38BC6F12477005ADE",
+                      "size":  1498
+                  },
+                  {
+                      "path":  "tests/test_realtime_watch_monitor.py",
+                      "sha256":  "930B8B3BEAB33878E19A3080475A1C993AC08077DBACCCCE2F246DA7A12F2459",
+                      "size":  15980
+                  }
+              ],
+    "backup_scope":  "realtime_watch_monitor_no_secrets"
+}

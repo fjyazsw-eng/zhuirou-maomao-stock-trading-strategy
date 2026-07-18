@@ -1,0 +1,58 @@
+﻿as_of: "2026-06-29"
+currency: "CNY"
+account:
+  total_assets: 20963.46
+  position_market_value: 16454.00
+  available_cash: 4509.46
+  position_ratio: 0.785
+  additional_capital_plan: "暂时不追加资金"
+constraints:
+  - "新买入只能使用现有现金，或者通过减仓、卖出、换仓完成。"
+  - "需要关注科技、半导体和电子方向的集中风险。"
+  - "任何新候选股必须与现有持仓横向比较。"
+  - "新股票只有明显优于现有最弱持仓时，才具备换仓研究价值。"
+  - "现金是风险缓冲和机会储备，不应默认全部投入。"
+holdings:
+  - name: "中天科技"
+    code: "600522"
+    exchange: "SH"
+    symbol: "600522.SH"
+    asset_type: "A股"
+    status: "holding"
+    quantity: 100
+    cost_price: 62.061
+  - name: "有研新材"
+    code: "600206"
+    exchange: "SH"
+    symbol: "600206.SH"
+    asset_type: "A股"
+    status: "holding"
+    quantity: 100
+    cost_price: 51.810
+  - name: "华天科技"
+    code: "002185"
+    exchange: "SZ"
+    symbol: "002185.SZ"
+    asset_type: "A股"
+    status: "holding"
+    quantity: 100
+    cost_price: 21.960
+  - name: "华安证券"
+    code: "600909"
+    exchange: "SH"
+    symbol: "600909.SH"
+    asset_type: "A股"
+    status: "holding"
+    quantity: 100
+    cost_price: 11.560
+  - name: "京东方A"
+    code: "000725"
+    exchange: "SZ"
+    symbol: "000725.SZ"
+    asset_type: "A股"
+    status: "holding"
+    quantity: 100
+    cost_price: 7.520
+notes:
+  - "本文件记录账户研究基准，不代表实时账户数据。"
+  - "后续报告必须标注实际数据截止时间，并说明是否已更新本基准。"

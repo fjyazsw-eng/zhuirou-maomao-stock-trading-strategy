@@ -1,0 +1,4 @@
+pandas==3.0.1
+numpy==2.3.5
+PyYAML==6.0.3
+tushare==1.4.29

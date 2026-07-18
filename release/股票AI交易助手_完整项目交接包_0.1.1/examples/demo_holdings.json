@@ -1,0 +1,6 @@
+{
+  "demo": true,
+  "cash": 100000,
+  "holdings": [{"code": "000000.DEMO", "name": "演示股份", "quantity": 100, "cost": 10.0}],
+  "notice": "虚构持仓，仅用于验证安装"
+}

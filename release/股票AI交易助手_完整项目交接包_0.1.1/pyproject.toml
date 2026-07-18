@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stock-ai-assistant"
+version = "0.1.1"
+description = "Portable A-share research and read-only monitoring assistant"
+requires-python = ">=3.11,<3.14"
+dependencies = [
+  "pandas>=2.2,<3.1",
+  "numpy>=1.26,<3",
+  "PyYAML>=6,<7",
+  "requests>=2.31,<3",
+  "urllib3>=2,<3",
+  "tushare>=1.4,<2",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

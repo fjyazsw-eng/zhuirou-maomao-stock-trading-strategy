@@ -1,0 +1,440 @@
+﻿version: "1.1"
+effective_date: "2026-07-01"
+change_reason: "Architecture V1.1; local venv, SQLite master tables, T-1 sector weighting, fixed persistence features, structured RouteRequest; frozen scoring modules and weights unchanged"
+
+sector_standard:
+  primary: "SW2021_L2"
+  summary: "SW2021_L1"
+  official_ranking_level: "L2"
+  leader_selection_level: "L2"
+  constituent_history_rule:
+    effective_condition: "in_date <= trade_date and (out_date is null or out_date > trade_date)"
+    anti_lookahead_required: true
+  exclusions:
+    bj_market:
+      enabled: true
+      reason: "first version excludes Beijing Stock Exchange stocks because benchmark mapping, liquidity features, and sector calibration need separate design"
+  minimum_sample_rules:
+    min_valid_sector_constituents: 5
+    min_sector_quote_coverage: 0.7
+    below_threshold_action: "no_formal_sector_score"
+  daily_aggregations:
+    weighted_return:
+      description: "free-float market-cap weighted constituent return using T-1 free-float market cap"
+      formula: "sum(return_t * circ_mv_t_minus_1) / sum(circ_mv_t_minus_1)"
+      weight_date: "T-1"
+      exclude_when_weight_missing: true
+      coverage_field: "weighted_mv_coverage"
+      min_coverage: 0.7
+      fallback_when_low_coverage: "use_equal_return_and_lower_data_quality"
+      use_for: "sector_relative_market_strength"
+    equal_return:
+      description: "simple average return of constituents with valid daily quote"
+      formula: "mean(return_t)"
+      use_for: "sector_broad_participation_and_weighted_return_fallback"
+    breadth:
+      description: "up constituents divided by constituents with valid daily quote"
+      formula: "count(return_t > 0) / count(valid_daily_quote)"
+    amount:
+      description: "sum constituent daily amount"
+      formula: "sum(amount_yuan)"
+    amount_share:
+      description: "sector amount divided by total market amount"
+      formula: "sector_amount_yuan / total_market_amount_yuan"
+    persistence_3_5d:
+      description: "fixed public features; scoring weights live in sector_score.yaml later"
+      features:
+        outperform_market_days_5d:
+          formula: "count(sector_equal_return > market_equal_return over last 5 trading days)"
+        breadth_ge_50_days_5d:
+          formula: "count(sector_breadth >= 0.5 over last 5 trading days)"
+        amount_share_up_days_5d:
+          formula: "count(sector_amount_share > previous_trade_day_sector_amount_share over last 5 trading days)"
+
+benchmark_rules:
+  stock_primary:
+    sh_main:
+      match: "ts_code endswith .SH and stock code does not start with 688"
+      benchmark: "000001.SH"
+      benchmark_name: "上证指数"
+    sz_main:
+      match: "ts_code endswith .SZ and stock code does not start with 300"
+      benchmark: "399001.SZ"
+      benchmark_name: "深证成指"
+    chinext:
+      match: "stock code starts with 300"
+      benchmark: "399006.SZ"
+      benchmark_name: "创业板指"
+    star:
+      match: "stock code starts with 688"
+      benchmark: "000688.SH"
+      benchmark_name: "科创50"
+  stock_secondary:
+    - "relative_to_SW2021_L2_sector"
+  sector_primary:
+    benchmark: "全市场等权收益"
+    source: "computed_from_standardized_daily_return"
+    reason: "stable and available without extra Tushare permission"
+  sector_secondary:
+    - "total_market_amount_weighted_return_optional"
+    - "CSI_all_share_optional_when_stable"
+  first_version_simplification:
+    - "sector uses total market equal-weight return as primary benchmark"
+    - "stock uses listing-board index as primary benchmark"
+    - "stock also stores relative SW2021 L2 return"
+    - "no style, size, or multi-factor benchmark layers in v1.1"
+
+history_windows:
+  minimum_feature_window_trade_days: 120
+  minimum_backtest_window_trade_days: 250
+  update_mode:
+    first_run: "full_fetch"
+    daily_run: "incremental_by_trade_date"
+    no_full_refetch_each_day: true
+  estimated_data:
+    stock_count: 5500
+    daily_rows_250d: 1375000
+    daily_basic_rows_250d: 1395000
+    adj_factor_rows_250d: 1375000
+    local_storage_csv_mb: "300-800"
+    local_storage_sqlite_mb: "200-500"
+  recommended_storage_v1_1:
+    raw_single_day_api_cache: "CSV"
+    merged_120d_master_table: "SQLite"
+    merged_250d_master_table: "SQLite"
+    daily_score_outputs:
+      - "JSON"
+      - "CSV"
+      - "Markdown"
+    sqlite_dependency: "Python standard library sqlite3"
+    no_large_dependency_required: true
+    parquet_note: "not used in Architecture V1.1 because pyarrow would be an extra large dependency"
+
+python_runtime:
+  formal_python: ".venv\\Scripts\\python.exe"
+  codex_python_fallback: "python"
+  codex_python_role: "temporary development interpreter and fallback only"
+  do_not_long_term_depend_on_codex_cache: true
+  system_python_note: "Microsoft Store placeholder; do not use as project launcher"
+  startup_resolution_order:
+    - "use project .venv if .venv\\Scripts\\python.exe exists"
+    - "else use current Codex bundled Python as temporary fallback"
+    - "else fail with explicit error"
+  startup_scripts_design:
+    - "run_update.bat"
+    - "run_score.bat"
+    - "run_backtest.bat"
+  token_policy:
+    source: "TUSHARE_TOKEN environment variable"
+    never_print_full_token: true
+    allowed_log: "present/missing, length, masked prefix/suffix only"
+
+unit_standard:
+  required_before_feature_engine: true
+  price:
+    unit: "CNY per share"
+    conversion: "keep Tushare price fields as yuan"
+  volume:
+    unit: "shares"
+    source_note: "Tushare daily.vol is usually hands"
+    conversion: "vol * 100"
+  amount:
+    unit: "CNY"
+    source_note: "Tushare daily.amount is usually thousand CNY"
+    conversion: "amount * 1000"
+  market_value:
+    unit: "CNY"
+    source_note: "Tushare daily_basic total_mv/circ_mv is usually ten-thousand CNY"
+    conversion: "mv * 10000"
+  turnover_rate:
+    format: "decimal"
+    source_note: "Tushare turnover_rate is percent"
+    conversion: "turnover_rate / 100"
+  return_and_pct_chg:
+    format: "decimal"
+    source_note: "Tushare pct_chg is percent"
+    conversion: "pct_chg / 100"
+  raw_fields_retained_for_traceability: true
+
+required_fields:
+  market:
+    - "trade_date"
+    - "ts_code"
+    - "open"
+    - "high"
+    - "low"
+    - "close"
+    - "pct_chg"
+    - "amount"
+  stock_daily:
+    - "ts_code"
+    - "trade_date"
+    - "open"
+    - "high"
+    - "low"
+    - "close"
+    - "pre_close"
+    - "pct_chg"
+    - "vol"
+    - "amount"
+  stock_basic_daily:
+    - "ts_code"
+    - "trade_date"
+    - "turnover_rate"
+    - "total_mv"
+    - "circ_mv"
+  stock_static:
+    - "ts_code"
+    - "symbol"
+    - "name"
+    - "list_date"
+  sector:
+    - "index_code"
+    - "industry_name"
+    - "level"
+    - "con_code"
+    - "in_date"
+    - "out_date"
+
+computed_fields:
+  - "return_1d"
+  - "return_3d"
+  - "return_5d"
+  - "ma5"
+  - "ma10"
+  - "ma20"
+  - "amount_5d_avg"
+  - "amount_vs_5d_avg"
+  - "close_position"
+  - "bias_20"
+  - "market_breadth"
+  - "market_equal_return"
+  - "sector_weighted_return_t_minus_1_mv"
+  - "sector_weighted_mv_coverage"
+  - "sector_equal_return"
+  - "sector_breadth"
+  - "sector_amount_share"
+  - "outperform_market_days_5d"
+  - "breadth_ge_50_days_5d"
+  - "amount_share_up_days_5d"
+  - "relative_market_strength"
+  - "relative_sector_strength"
+  - "amount_rank_in_sector"
+
+optional_fields:
+  - "volume_ratio"
+  - "turnover_rate_f"
+  - "adj_factor"
+  - "suspend_type"
+  - "forecast"
+  - "express"
+  - "stk_holdertrade"
+  - "share_float"
+  - "announcement_title"
+  - "regulatory_inquiry"
+  - "platform_popularity_rank"
+  - "platform_leader_label"
+  - "main_moneyflow"
+
+missing_value_rules:
+  never_fill_missing_with_zero_for_scoring: true
+  daily_join_policy: "daily is trading fact table; left join daily_basic and mark missing"
+  suspended_policy: "exclude no-quote constituents from daily return and breadth denominator; keep suspension flag"
+  new_listing_policy:
+    new_stock_trade_days_threshold: 60
+    action: "mark_as_new_stock_and_exclude_from_normal_trend_core_ranking"
+  bj_market_policy:
+    action: "exclude_in_v1_1"
+    reason: "benchmark mapping, liquidity features, and sector calibration need separate design"
+  adj_factor_missing_policy: "short-term unadjusted features allowed; long-window trend confidence reduced"
+  sector_sample_policy:
+    min_valid_constituents: 5
+    min_quote_coverage: 0.7
+    below_threshold_action: "no_formal_sector_score"
+  sector_weighted_return_policy:
+    weight_field: "circ_mv_t_minus_1_yuan"
+    min_weight_coverage: 0.7
+    missing_weight_action: "exclude_constituent_from_weighted_calculation_and_record_coverage"
+    below_threshold_action: "no_formal_weighted_return_use_equal_return_and_lower_quality"
+
+user_context_policy:
+  formal_account_source: "portfolio/account_baseline.yaml"
+  formal_account_fields:
+    - "holdings"
+    - "cost"
+    - "position_size"
+    - "cash"
+  temporary_context_file: "data/processed/user_context.json"
+  temporary_context_allowed_fields:
+    - "recent_scenario"
+    - "recent_stock"
+    - "default_time_horizon"
+    - "latest_trade_date"
+  temporary_context_must_not_override_formal_account_data: true
+
+data_quality_threshold:
+  formal_score_minimum: 0.7
+  module_quality_required: true
+  auxiliary_missing_blocks_core_score: false
+  key_missing_action: "decrease_confidence"
+  below_threshold_action: "output_data_insufficient_result_without_formal_score"
+
+scenario_routes:
+  sector_discovery:
+    label: "场景A：空仓寻找板块"
+    intent_examples:
+      - "我现在空仓，帮我找值得观察的板块。"
+    required_inputs: []
+    default_inputs:
+      as_of_date: "latest_trade_date"
+      position_status: "empty"
+    pipeline:
+      - "market_score"
+      - "all_SW2021_L2_sector_scores"
+      - "top_2_to_3_sectors"
+      - "sector_grade_advantage_risk"
+    output_focus:
+      - "sector_rankings"
+      - "risk_flags"
+  sector_leader_search:
+    label: "场景B：指定板块寻找龙头"
+    intent_examples:
+      - "帮我找半导体材料板块的核心股票。"
+    required_inputs:
+      - "sector_name_or_sector_code"
+    pipeline:
+      - "check_sector_score"
+      - "active_constituents"
+      - "leader_score"
+      - "emotion_leader_capacity_core_trend_core"
+    output_focus:
+      - "leader_candidates"
+      - "sector_status"
+  stock_execution:
+    label: "场景C：已筛选股票做执行评分"
+    intent_examples:
+      - "这只股票现在适不适合参与？"
+    required_inputs:
+      - "stock_code_or_unique_stock_name"
+    pipeline:
+      - "stock_execution_score"
+      - "risk_engine"
+      - "execution_label"
+    output_focus:
+      - "stock_scores"
+      - "risk_flags"
+  stock_recommendation_review:
+    label: "场景D：临时推荐股票"
+    intent_examples:
+      - "别人推荐了格科微，帮我看看。"
+    required_inputs:
+      - "stock_code_or_unique_stock_name"
+    pipeline:
+      - "market_brief_score"
+      - "sector_brief_score"
+      - "sector_position"
+      - "stock_execution_score"
+      - "unified_risk"
+      - "independent_summary"
+    output_focus:
+      - "market_score"
+      - "sector_status"
+      - "stock_scores"
+      - "risk_flags"
+  position_management:
+    label: "场景E：持仓管理"
+    intent_examples:
+      - "我持有某股票，成本多少，现在怎么办？"
+    required_inputs:
+      - "stock_code_or_unique_stock_name"
+    account_source_priority:
+      - "portfolio/account_baseline.yaml"
+      - "explicit_user_input_for_this_run"
+    pipeline:
+      - "update_market_sector_leader_stock_status"
+      - "combine_user_cost_position"
+      - "holding_reduce_exit_wait_conditions"
+    output_focus:
+      - "position_action"
+      - "risk_flags"
+  historical_backtest:
+    label: "场景F：历史回测"
+    intent_examples:
+      - "验证鼎龙股份启动前的评分。"
+    required_inputs:
+      - "stock_code_or_sector_code"
+      - "t_date"
+    pipeline:
+      - "use_data_before_or_on_t_date"
+      - "compute_t_date_score"
+      - "check_t_plus_1_3_5"
+      - "return_excess_return_max_drawdown"
+    output_focus:
+      - "backtest_result"
+      - "data_quality"
+
+router_responsibility:
+  natural_language_understanding_owner: "GPT_or_upper_dialog_system"
+  local_router_roles:
+    - "validate RouteRequest"
+    - "execute selected scenario"
+    - "detect missing fields"
+    - "simple keyword fallback only"
+  local_router_does_complex_nlu: false
+
+router_standard_output:
+  fields:
+    - "scenario"
+    - "as_of_date"
+    - "position_status"
+    - "time_horizon"
+    - "stock_code"
+    - "stock_name"
+    - "sector_code"
+    - "sector_name"
+    - "stocks"
+    - "sectors"
+    - "position"
+    - "need_user_input"
+    - "missing_inputs"
+    - "output_level"
+  avoid_repeated_questions:
+    context_file: "data/processed/user_context.json"
+    default_as_of_date: "latest_trade_date"
+    ask_only_for_critical_ambiguity: true
+
+output_formats:
+  json:
+    required: true
+    purpose: "GPT and downstream program reading"
+    minimum_fields:
+      - "as_of_date"
+      - "model_version"
+      - "data_quality"
+      - "market_score"
+      - "sector_rankings"
+      - "leader_candidates"
+      - "stock_scores"
+      - "risk_flags"
+      - "missing_fields"
+      - "source_status"
+  csv:
+    required: true
+    purpose: "rankings, history, backtest records"
+  markdown:
+    required: true
+    purpose: "concise user-facing report"
+  no_long_ai_analysis_in_mechanical_output: true
+
+runtime_principles:
+  python_fetch_and_calculation_consumes_codex_tokens: false
+  codex_role: "develop, modify, and repair programs"
+  gpt_role: "read concise outputs and explain"
+  daily_run_should_not_require_formula_reread_by_codex: true
+  announcement_and_regulatory_risk:
+    handled_by: "GPT or external search as auxiliary"
+    blocks_core_score: false
+  architecture_v1_1_scope:
+    no_formal_scoring_program_development: true
+    no_frozen_weight_changes: true
+    no_backtest_start: true

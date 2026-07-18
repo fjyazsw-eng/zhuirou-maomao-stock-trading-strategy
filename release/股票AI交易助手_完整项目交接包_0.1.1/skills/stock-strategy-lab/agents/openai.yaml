@@ -1,0 +1,4 @@
+interface:
+  display_name: "股票AI分析与盯盘"
+  short_description: "用于A股结构化分析、持仓风险咨询与只读实时盯盘的研究辅助技能"
+  default_prompt: "Use $stock-strategy-lab to analyze this stock or holding with dated evidence and clear risk conditions."

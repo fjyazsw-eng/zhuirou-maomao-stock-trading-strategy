@@ -1,0 +1,43 @@
+version: "1.0.0-simulation-mvp"
+effective_date: "2026-07-02"
+change_reason: "新增连续模拟运行MVP：每日快照与T+1/T+3/T+5事后验证；不调整评分阈值"
+replay:
+  default_days: 1
+  window_days_for_update: 30
+sample_scope:
+  top_sector_count: 10
+  leaders_per_top_sector: 3
+  min_focus_stocks: 10
+  include_final_decisions:
+    - "READY_CORE"
+    - "READY_SECONDARY"
+    - "WAIT_PULLBACK_CORE"
+    - "WAIT_CONFIRM"
+    - "WEAK_STRUCTURE"
+    - "AVOID"
+verification:
+  horizons:
+    next_day: 1
+    t3: 3
+    t5: 5
+  max_drawdown_horizon: 5
+result_status:
+  pending: "PENDING"
+  partial: "PARTIAL"
+  complete: "COMPLETE"
+reporting:
+  insufficient_days_threshold: 20
+  allowed_small_sample_terms:
+    - "初步观察"
+    - "样本不足"
+    - "尚未验证"
+    - "需要继续模拟"
+anomaly_checks:
+  ready_core_drop_threshold: -0.03
+  ready_secondary_drop_threshold: -0.05
+  weak_structure_rise_threshold: 0.05
+  avoid_rise_threshold: 0.05
+  wait_pullback_continue_up_threshold: 0.05
+wait_pullback_validation:
+  pullback_threshold: -0.005
+  continue_up_threshold: 0.05

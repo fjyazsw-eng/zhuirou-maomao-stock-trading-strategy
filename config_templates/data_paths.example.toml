@@ -1,0 +1,8 @@
+[data_paths]
+base_data_dir = "D:/股票AI交易助手数据"
+sqlite_dir = "D:/股票AI交易助手数据/sqlite"
+cache_dir = "D:/股票AI交易助手数据/cache/tushare_2025"
+temp_dir = "D:/股票AI交易助手数据/temp/fetch_2025"
+log_dir = "D:/股票AI交易助手数据/logs/fetch_2025"
+export_dir = "D:/股票AI交易助手数据/exports/data_reports"
+market_2025_db = "D:/股票AI交易助手数据/sqlite/market_2025.sqlite"

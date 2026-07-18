@@ -1,0 +1,22 @@
+# System files
+.DS_Store
+Thumbs.db
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.venv/
+venv/
+
+# Environment files
+.env
+.env.*
+
+# Logs
+*.log
+
+# Temporary files
+tmp/
+temp/

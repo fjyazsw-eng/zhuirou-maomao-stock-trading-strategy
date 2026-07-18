@@ -1,0 +1,5 @@
+{
+  "task": "holding_analysis",
+  "positions": [{"ts_code": "000001.SZ", "cost": 10.5, "shares": 100}],
+  "holding_period": "1-2周"
+}

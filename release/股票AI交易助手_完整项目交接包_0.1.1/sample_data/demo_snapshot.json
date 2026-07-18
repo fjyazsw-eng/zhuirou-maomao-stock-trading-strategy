@@ -1,0 +1,19 @@
+{
+  "banner": "DEMO DATA / 演示数据",
+  "warning": "不得用于真实交易决策",
+  "data_date": "DEMO-2025-01-01",
+  "data_complete": false,
+  "market_weather": "演示：震荡",
+  "sector_state": "演示：分化修复",
+  "stock_role": "演示：趋势核心观察样本",
+  "funds_and_turnover": "演示：成交温和，资金字段为虚构格式样例",
+  "fundamentals": "演示：仅展示输出结构，未连接真实财务数据",
+  "main_risks": ["演示数据不是最新行情", "不可用于买卖判断"],
+  "conclusion": "数据不足，仅观察",
+  "execution_conditions": "连接真实数据并通过健康检查后重新分析",
+  "invalidation_conditions": "任何把演示数据当作实时数据的使用方式均无效",
+  "position_ceiling": "0%",
+  "protection_condition": "不执行交易",
+  "facts": ["这是离线演示夹具"],
+  "inferences": ["只验证安装、字段和流程"]
+}

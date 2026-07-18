@@ -1,0 +1,110 @@
+version: "1.0.0-leader-mvp"
+effective_date: "2026-07-01"
+change_reason: "新增龙头评分MVP：仅使用行情、申万SW2021 L2成分、板块评分和成交额排名；不使用新闻、公告、主力资金或人气排名"
+score_total: 100
+components:
+  relative_sector_strength:
+    max_points: 35
+    weights:
+      relative_return_1d: 0.20
+      relative_return_3d: 0.30
+      relative_return_5d: 0.50
+    bands:
+      - {min: 0.080, points: 35, label: "strong_multi_day_outperform"}
+      - {min: 0.050, points: 28, label: "clear_multi_day_outperform"}
+      - {min: 0.025, points: 21, label: "moderate_outperform"}
+      - {min: 0.000, points: 14, label: "slightly_outperform"}
+      - {min: -0.030, points: 7, label: "lagging"}
+      - {min: null, points: 2, label: "weak"}
+    single_day_spike:
+      one_day_min: 0.08
+      three_day_max: 0.02
+      five_day_max: 0.02
+      cap_points: 21
+  amount_position:
+    max_points: 30
+    weights:
+      amount_percentile_1d: 0.45
+      amount_percentile_5d: 0.45
+      amount_share_score: 0.10
+    amount_share_scale: 0.08
+    bands:
+      - {min: 0.90, points: 30, label: "top_liquidity_core"}
+      - {min: 0.80, points: 24, label: "high_liquidity"}
+      - {min: 0.65, points: 18, label: "active_liquidity"}
+      - {min: 0.45, points: 12, label: "medium_liquidity"}
+      - {min: 0.25, points: 6, label: "low_liquidity"}
+      - {min: null, points: 2, label: "weak_liquidity"}
+    weak_close_cap:
+      close_position_max: 0.45
+      return_max: 0.00
+      cap_points: 18
+  persistence_3_5d:
+    max_points: 20
+    subfeatures:
+      outperform_sector_days_5d:
+        max_points: 7
+        bands:
+          - {min: 5, points: 7}
+          - {min: 4, points: 5.5}
+          - {min: 3, points: 4}
+          - {min: 2, points: 2}
+          - {min: null, points: 0}
+      up_days_5d:
+        max_points: 5
+        bands:
+          - {min: 5, points: 5}
+          - {min: 4, points: 4}
+          - {min: 3, points: 2.5}
+          - {min: 2, points: 1}
+          - {min: null, points: 0}
+      amount_above_own_5d_avg_days:
+        max_points: 5
+        bands:
+          - {min: 4, points: 5}
+          - {min: 3, points: 4}
+          - {min: 2, points: 2.5}
+          - {min: 1, points: 1}
+          - {min: null, points: 0}
+      return_3_5_same_direction:
+        max_points: 3
+        true_points: 3
+        false_points: 0
+  stock_sector_sync:
+    max_points: 15
+    min_sector_breadth_for_sync: 0.50
+    bands:
+      - {min: 0.80, points: 15, label: "high_sync"}
+      - {min: 0.60, points: 12, label: "good_sync"}
+      - {min: 0.40, points: 8, label: "partial_sync"}
+      - {min: 0.20, points: 4, label: "weak_sync"}
+      - {min: null, points: 1, label: "independent_or_lagging"}
+grades:
+  - {min: 85, grade: "A级龙头候选"}
+  - {min: 75, grade: "B级核心候选"}
+  - {min: 65, grade: "C级观察候选"}
+  - {min: 55, grade: "D级一般候选"}
+  - {min: null, grade: "E级不突出"}
+filters:
+  exclude_bj: true
+  min_valid_days_5d: 5
+  new_stock_calendar_days: 60
+  unique_sector_required: false
+candidate_classes:
+  sentiment_leader:
+    label: "情绪龙头"
+    min_total_score: 75
+    min_relative_score: 21
+    min_sync_score: 8
+    min_persistence_score: 12
+  liquidity_core:
+    label: "容量核心"
+    min_total_score: 70
+    min_amount_score: 24
+    min_amount_percentile_5d: 0.80
+  trend_core:
+    label: "趋势核心"
+    min_total_score: 70
+    min_relative_return_3d: 0.02
+    min_relative_return_5d: 0.04
+    min_persistence_score: 12

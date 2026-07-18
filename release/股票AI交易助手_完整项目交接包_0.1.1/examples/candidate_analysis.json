@@ -1,0 +1,8 @@
+{
+  "task": "candidate_analysis",
+  "trade_date": "latest",
+  "capital": 5000,
+  "holding_period": "2-4周",
+  "max_candidates": 3,
+  "constraints": {"max_price": 50, "cannot_watch_intraday": true}
+}

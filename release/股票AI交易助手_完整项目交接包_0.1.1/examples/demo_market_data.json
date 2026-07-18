@@ -1,0 +1,8 @@
+{
+  "demo": true,
+  "data_date": "2025-01-15",
+  "market": {"name": "DEMO市场", "state": "震荡", "volume_ratio": 1.08},
+  "sector": {"name": "DEMO通信设备", "state": "修复", "relative_strength": 1.12},
+  "stock": {"code": "000000.DEMO", "name": "演示股份", "close": 10.5, "volume_ratio": 1.25, "fund_flow": 1200000},
+  "notice": "固定脱敏演示数据，不是实时行情，不得用于真实交易决策"
+}

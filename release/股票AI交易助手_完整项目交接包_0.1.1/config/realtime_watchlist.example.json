@@ -1,0 +1,31 @@
+{
+  "_notice": "EXAMPLE ONLY / 演示配置，不代表股票推荐。复制为 realtime_watchlist.json 后填写自己的确认方案。",
+  "poll_interval_seconds": 60,
+  "cc_connect": {"project": "", "platforms": []},
+  "notification": {
+    "states": ["ZONE_REACHED", "HOLDING", "CONFIRMED", "TURNING_STRONG", "INVALIDATED", "DATA_ERROR", "SUPPORT_TEST", "RECOVERED", "STRENGTH_CONFIRMED", "RECOVERY_REJECTED", "SUPPORT_BROKEN", "RISK_ESCALATED"]
+  },
+  "industry_profile": {
+    "enabled": true,
+    "sw_api": "index_member_all",
+    "ci_api": "ci_index_member"
+  },
+  "market": {"references": ["1.000001", "0.399001"]},
+  "holding_watchlist": [],
+  "watchlist": [],
+  "_candidate_schema_example": {
+    "code": "600000.SH",
+    "name": "示例股票A（演示）",
+    "zone": {"low": 10.0, "high": 10.5},
+    "sector": {"name": "示例板块", "secid": "90.BK0000", "references": []},
+    "rules": {"break_tolerance_pct": 0.2, "min_same_time_amount_ratio": 0.8}
+  },
+  "_holding_schema_example": {
+    "code": "000001.SZ",
+    "name": "示例持仓（演示）",
+    "quantity": 100,
+    "cost": 10.0,
+    "levels": {"support": 9.8, "risk": 9.5, "recovery": 10.2, "strength": 10.5},
+    "sector": {"name": "示例板块", "secid": "90.BK0000", "references": []}
+  }
+}

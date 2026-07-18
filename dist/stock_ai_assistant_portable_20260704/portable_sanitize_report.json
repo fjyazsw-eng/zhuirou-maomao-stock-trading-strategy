@@ -1,0 +1,147 @@
+[
+  {
+    "file": "C:\\Users\\HUAWEI\\Documents\\股票AI交易助手\\dist\\stock_ai_assistant_portable_20260704\\.env.example",
+    "risk": "TOKEN",
+    "severity": "template_allowed"
+  },
+  {
+    "file": "C:\\Users\\HUAWEI\\Documents\\股票AI交易助手\\dist\\stock_ai_assistant_portable_20260704\\.env.example",
+    "risk": "TOKEN",
+    "severity": "template_allowed"
+  },
+  {
+    "file": "C:\\Users\\HUAWEI\\Documents\\股票AI交易助手\\dist\\stock_ai_assistant_portable_20260704\\config_templates\\scoring_architecture.yaml",
+    "risk": "token",
+    "severity": "template_allowed"
+  },
+  {
+    "file": "C:\\Users\\HUAWEI\\Documents\\股票AI交易助手\\dist\\stock_ai_assistant_portable_20260704\\scoring_system\\mvp_update.py",
+    "risk": "token",
+    "severity": "code_reference"
+  },
+  {
+    "file": "C:\\Users\\HUAWEI\\Documents\\股票AI交易助手\\dist\\stock_ai_assistant_portable_20260704\\scoring_system\\mvp_update.py",
+    "risk": "token",
+    "severity": "code_reference"
+  },
+  {
+    "file": "C:\\Users\\HUAWEI\\Documents\\股票AI交易助手\\dist\\stock_ai_assistant_portable_20260704\\scoring_system\\mvp_update.py",
+    "risk": "TOKEN",
+    "severity": "code_reference"
+  },
+  {
+    "file": "C:\\Users\\HUAWEI\\Documents\\股票AI交易助手\\dist\\stock_ai_assistant_portable_20260704\\scoring_system\\mvp_update.py",
+    "risk": "TOKEN",
+    "severity": "code_reference"
+  },
+  {
+    "file": "C:\\Users\\HUAWEI\\Documents\\股票AI交易助手\\dist\\stock_ai_assistant_portable_20260704\\scoring_system\\push_gateway.py",
+    "risk": "secret",
+    "severity": "code_reference"
+  },
+  {
+    "file": "C:\\Users\\HUAWEI\\Documents\\股票AI交易助手\\dist\\stock_ai_assistant_portable_20260704\\scoring_system\\push_gateway.py",
+    "risk": "secret",
+    "severity": "code_reference"
+  },
+  {
+    "file": "C:\\Users\\HUAWEI\\Documents\\股票AI交易助手\\dist\\stock_ai_assistant_portable_20260704\\scoring_system\\push_gateway.py",
+    "risk": "secret",
+    "severity": "code_reference"
+  },
+  {
+    "file": "C:\\Users\\HUAWEI\\Documents\\股票AI交易助手\\dist\\stock_ai_assistant_portable_20260704\\scoring_system\\telegram_gateway.py",
+    "risk": "token",
+    "severity": "code_reference"
+  },
+  {
+    "file": "C:\\Users\\HUAWEI\\Documents\\股票AI交易助手\\dist\\stock_ai_assistant_portable_20260704\\scoring_system\\telegram_gateway.py",
+    "risk": "token",
+    "severity": "code_reference"
+  },
+  {
+    "file": "C:\\Users\\HUAWEI\\Documents\\股票AI交易助手\\dist\\stock_ai_assistant_portable_20260704\\scoring_system\\telegram_gateway.py",
+    "risk": "token",
+    "severity": "code_reference"
+  },
+  {
+    "file": "C:\\Users\\HUAWEI\\Documents\\股票AI交易助手\\dist\\stock_ai_assistant_portable_20260704\\scoring_system\\telegram_gateway.py",
+    "risk": "token",
+    "severity": "code_reference"
+  },
+  {
+    "file": "C:\\Users\\HUAWEI\\Documents\\股票AI交易助手\\dist\\stock_ai_assistant_portable_20260704\\scoring_system\\telegram_gateway.py",
+    "risk": "token",
+    "severity": "code_reference"
+  },
+  {
+    "file": "C:\\Users\\HUAWEI\\Documents\\股票AI交易助手\\dist\\stock_ai_assistant_portable_20260704\\scoring_system\\telegram_gateway.py",
+    "risk": "token",
+    "severity": "code_reference"
+  },
+  {
+    "file": "C:\\Users\\HUAWEI\\Documents\\股票AI交易助手\\dist\\stock_ai_assistant_portable_20260704\\scoring_system\\workflow_status.py",
+    "risk": "token",
+    "severity": "code_reference"
+  },
+  {
+    "file": "C:\\Users\\HUAWEI\\Documents\\股票AI交易助手\\dist\\stock_ai_assistant_portable_20260704\\scoring_system\\workflow_status.py",
+    "risk": "api_key",
+    "severity": "code_reference"
+  },
+  {
+    "file": "C:\\Users\\HUAWEI\\Documents\\股票AI交易助手\\dist\\stock_ai_assistant_portable_20260704\\scripts\\acceptance_audit.py",
+    "risk": "token",
+    "severity": "code_reference"
+  },
+  {
+    "file": "C:\\Users\\HUAWEI\\Documents\\股票AI交易助手\\dist\\stock_ai_assistant_portable_20260704\\scripts\\acceptance_audit.py",
+    "risk": "token",
+    "severity": "code_reference"
+  },
+  {
+    "file": "C:\\Users\\HUAWEI\\Documents\\股票AI交易助手\\dist\\stock_ai_assistant_portable_20260704\\scripts\\check_feishu_config.py",
+    "risk": "secret",
+    "severity": "code_reference"
+  },
+  {
+    "file": "C:\\Users\\HUAWEI\\Documents\\股票AI交易助手\\dist\\stock_ai_assistant_portable_20260704\\scripts\\health_check.py",
+    "risk": "token",
+    "severity": "code_reference"
+  },
+  {
+    "file": "C:\\Users\\HUAWEI\\Documents\\股票AI交易助手\\dist\\stock_ai_assistant_portable_20260704\\scripts\\phase2a_prepare_30d.py",
+    "risk": "token",
+    "severity": "code_reference"
+  },
+  {
+    "file": "C:\\Users\\HUAWEI\\Documents\\股票AI交易助手\\dist\\stock_ai_assistant_portable_20260704\\scripts\\phase2a_prepare_30d.py",
+    "risk": "token",
+    "severity": "code_reference"
+  },
+  {
+    "file": "C:\\Users\\HUAWEI\\Documents\\股票AI交易助手\\dist\\stock_ai_assistant_portable_20260704\\scripts\\push_report_to_channels.py",
+    "risk": "token",
+    "severity": "code_reference"
+  },
+  {
+    "file": "C:\\Users\\HUAWEI\\Documents\\股票AI交易助手\\dist\\stock_ai_assistant_portable_20260704\\scripts\\push_report_to_channels.py",
+    "risk": "token",
+    "severity": "code_reference"
+  },
+  {
+    "file": "C:\\Users\\HUAWEI\\Documents\\股票AI交易助手\\dist\\stock_ai_assistant_portable_20260704\\scripts\\push_report_to_channels.py",
+    "risk": "token",
+    "severity": "code_reference"
+  },
+  {
+    "file": "C:\\Users\\HUAWEI\\Documents\\股票AI交易助手\\dist\\stock_ai_assistant_portable_20260704\\scripts\\tech_sector_end_check.py",
+    "risk": "token",
+    "severity": "code_reference"
+  },
+  {
+    "file": "C:\\Users\\HUAWEI\\Documents\\股票AI交易助手\\dist\\stock_ai_assistant_portable_20260704\\scripts\\tech_sector_end_check.py",
+    "risk": "token",
+    "severity": "code_reference"
+  }
+]

@@ -1,0 +1,36 @@
+.git/
+.venv/
+__pycache__/
+*.pyc
+
+# Large or generated local artifacts
+data/
+dist/
+logs/
+reports/
+.codex/external/
+*.sqlite
+*.sqlite3
+*.db
+*.zip
+*.7z
+*.rar
+
+# Media and design assets that are not needed for code reasoning
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.psd
+*.mp4
+*.mov
+
+# Local secrets and machine-specific files
+.env
+auth.json
+config.toml
+cookies*
+*token*
+*secret*
+*key*
