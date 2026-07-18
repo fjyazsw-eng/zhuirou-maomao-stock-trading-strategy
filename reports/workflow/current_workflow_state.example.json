@@ -1,0 +1,134 @@
+{
+  "workflow_version": "workflow_state_v1",
+  "created_at": "2026-07-18T00:00:00",
+  "updated_at": "2026-07-18T00:00:00",
+  "latest_completed_trade_date": "",
+  "current_stage": "WEEKEND_REALITY_PENDING",
+  "weekend_reality_analysis": {
+    "market_state": "",
+    "market_trend": "",
+    "market_risk_level": "",
+    "focus_sectors": [],
+    "excluded_sectors": [],
+    "reality_summary": "",
+    "source_report": ""
+  },
+  "hexagram_manual_input": {
+    "hexagram_status": "NOT_PROVIDED",
+    "market_hexagram_result": "",
+    "sector_hexagram_results": [],
+    "timing_windows": [],
+    "hexagram_risk_level": "",
+    "hexagram_notes": "",
+    "hexagram_source": "",
+    "adjustment_rule": "DOWNGRADE_ONLY",
+    "calibration_result": {
+      "reality_participation_level": "",
+      "hexagram_direction": "",
+      "calibrated_participation_level": "",
+      "downgrade_applied": false,
+      "downgrade_reason": "",
+      "blocked_by_systemic_risk": false,
+      "risk_windows": [],
+      "favorable_windows": [],
+      "validity_status": "NOT_PROVIDED",
+      "adjustment_rule": "DOWNGRADE_ONLY",
+      "final_policy": "",
+      "final_intraday_action": ""
+    }
+  },
+  "weekly_strategy": {
+    "participation_level": "",
+    "allowed_sectors": [],
+    "prohibited_sectors": [],
+    "allowed_days_or_windows": [],
+    "strategy_summary": ""
+  },
+  "night_plan": {
+    "plan_trade_date": "",
+    "primary_candidate": {
+      "ts_code": "",
+      "name": "",
+      "sector": "",
+      "buy_level": "",
+      "notes": ""
+    },
+    "backup_candidate": {
+      "ts_code": "",
+      "name": "",
+      "sector": "",
+      "buy_level": "",
+      "notes": ""
+    },
+    "planned_quantity": 100,
+    "primary_conditions": [],
+    "backup_conditions": [],
+    "cancellation_conditions": [],
+    "plan_status": "NOT_READY"
+  },
+  "intraday_veto_result": {
+    "check_time_window": "09:50-10:00",
+    "intraday_data_source": "",
+    "market_veto": null,
+    "sector_veto": null,
+    "primary_veto": null,
+    "backup_veto": null,
+    "data_status": "NOT_CHECKED",
+    "final_intraday_action": "",
+    "intraday_checked_at": ""
+  },
+  "daily_execution_state": {
+    "new_buy_locked": false,
+    "new_position_opened_today": false,
+    "executed_symbol": "",
+    "executed_quantity": 0,
+    "execution_note": ""
+  },
+  "systemic_risk_gate": {
+    "systemic_risk_status": "NOT_CHECKED",
+    "systemic_risk_level": "",
+    "systemic_risk_checked_at": "",
+    "systemic_risk_reasons": [],
+    "new_buy_locked": false,
+    "new_buy_lock_date": "",
+    "new_buy_lock_reason": "",
+    "new_buy_unlock_pending": false,
+    "new_buy_lock_history": [],
+    "assessment_details": {}
+  },
+  "reversal_observation": {
+    "reversal_status": "NONE",
+    "reversal_trade_date": "",
+    "reversal_source": "",
+    "panic_release_detected": "UNKNOWN",
+    "breadth_extreme_detected": "UNKNOWN",
+    "index_stabilization_detected": "UNKNOWN",
+    "sector_stabilization_detected": "UNKNOWN",
+    "core_stock_support_detected": "UNKNOWN",
+    "reversal_confirmation_count": 0,
+    "reversal_data_status": "NOT_CHECKED",
+    "reversal_reason": "",
+    "reversal_failed_reason": "",
+    "reversal_checked_at": ""
+  },
+  "workflow_audit": {
+    "completed_steps": [],
+    "history_root": "reports/workflow/history",
+    "last_next_command": ""
+  },
+  "closing_holding_review": {
+    "holding_actions": [],
+    "closing_review": "",
+    "next_day_attention": []
+  },
+  "weekly_review": {
+    "reality_accuracy_score": null,
+    "hexagram_value_score": null,
+    "intraday_veto_value": "",
+    "avoided_loss": null,
+    "missed_opportunity": null,
+    "execution_deviation": "",
+    "weekly_summary": "",
+    "next_week_adjustments": []
+  }
+}
