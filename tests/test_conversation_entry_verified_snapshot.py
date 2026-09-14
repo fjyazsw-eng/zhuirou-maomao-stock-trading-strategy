@@ -13,18 +13,19 @@ def write_snapshot(root: Path, *, status: str = "PASS", allowed: bool = True, ma
         json.dumps(
             {
                 "snapshot_status": status,
+                "data_source": "hithink-finance",
                 "trade_date": "20260717",
                 "formal_recommendation_allowed": allowed,
                 "data_is_latest_complete": allowed,
                 "required_api_rows": {"daily": 5522, "daily_basic": 5522, "index_daily": 1291, "sw_daily": 439},
                 "freshness": {
                     "status": status,
-                    "endpoint": "https://ts.gyzcloud.top/api",
+                    "endpoint": "hithink-finance",
                     "latest_trade_date": "20260717",
                     "latest_complete_trade_date": "20260717" if allowed else "20260716",
                     "data_is_latest_complete": allowed,
                     "formal_recommendation_allowed": allowed,
-                    "message": "latest trade date has complete Tushare rows" if allowed else "blocked by freshness gate",
+                    "message": "latest trade date has complete HiThink rows" if allowed else "blocked by freshness gate",
                     "required_api_rows": {"daily": 5522 if allowed else 0, "daily_basic": 5522 if allowed else 0, "index_daily": 1291 if allowed else 0, "sw_daily": 439},
                 },
                 "market": {
@@ -59,7 +60,7 @@ def test_answer_uses_verified_snapshot_for_candidate_market_gate(monkeypatch, tm
 
     text = ce.answer("推荐板块和个股")
 
-    assert "Tushare状态| 正常" in text
+    assert "同花顺状态| 正常" in text
     assert "最新交易日| 20260717" in text
     assert "行情落点| 20260717" in text
     assert "市场状态：极弱" in text
@@ -74,6 +75,6 @@ def test_answer_blocks_when_verified_snapshot_is_not_fresh(monkeypatch, tmp_path
 
     text = ce.answer("推荐板块和个股")
 
-    assert "Tushare状态| 异常 / 待确认" in text
+    assert "同花顺状态| 异常 / 待确认" in text
     assert "先不做新的确定性买入判断" in text
     assert "blocked by freshness gate" in text

@@ -1,10 +1,11 @@
-﻿"""Build Shenwan industry neighborhood map from cached market data.
+"""Build Shenwan industry neighborhood map from cached market data.
 
 Uses SW2021 industry classification where available. Local cache first; no token
 printing; no industry guessing. Unmatched stocks are listed separately.
 """
 
 from __future__ import annotations
+from scoring_system.tushare_client import credential_marker
 
 import argparse
 import os
@@ -14,7 +15,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 import pandas as pd
-import tushare as ts
+from scoring_system import tushare_client as ts
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 RAW_DIR = PROJECT_ROOT / "data" / "raw"
@@ -31,9 +32,9 @@ MEMBER_FIELDS = ["index_code", "index_name", "con_code", "con_name", "in_date", 
 
 
 def get_pro() -> object:
-    token = os.getenv("TUSHARE_TOKEN")
+    token = credential_marker()
     if not token:
-        raise RuntimeError("TUSHARE_TOKEN 不存在")
+        raise RuntimeError("HITHINK_FINANCE_API_KEY 不存在")
     return ts.pro_api(token)
 
 

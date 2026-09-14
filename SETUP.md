@@ -1,3 +1,7 @@
+
+## 股票数据源强制入口
+
+先读取仓库根目录 `DATA_SOURCES.md`。所有 A 股取数强制 hithink-finance -> mootdx（仅分钟线），无 Tushare 或其他自动回退。旧报告/备份不是现行取数规则。
 # 股票AI交易助手安装与恢复
 
 支持 Python `>=3.11,<3.14`，Windows、Linux 和 macOS 均可使用。以下命令以 Windows PowerShell 为例。
@@ -30,8 +34,8 @@ python -m venv .venv
 - 默认数据库：`data/sqlite/market_120d.sqlite`。
 - 外部市场数据库：设置 `STOCK_AI_MARKET_DB`。
 - Walk-forward 数据库：设置 `STOCK_AI_WALK_FORWARD_DB`。
-- Tushare 统一通过 `scoring_system/tushare_client.py`，优先使用 `TUSHARE_REPLAY_API_KEY`。
-- 已验证可作为默认能力的 Tushare 数据包括盘后行情、行业成分、资金、复权和公司基本面；公告新闻和盘中实时价需要额外接口权限或外部只读数据源。
+> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，mootdx 仅分钟线，失败报错。
+> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，mootdx 仅分钟线，失败报错。
 
 ## 消息渠道
 

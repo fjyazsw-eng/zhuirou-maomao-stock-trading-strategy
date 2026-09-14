@@ -42,6 +42,7 @@ def _print_help() -> None:
             [
                 "股票AI交易助手统一入口",
                 "setup: 运行环境检查",
+                "data: 同花顺主源 / mootdx 分钟线（data --help）",
                 "status: 只读查看当前阶段",
                 "next: 运行工作流下一步建议",
                 "validate: 校验状态和编排器",
@@ -57,6 +58,9 @@ def main(argv: list[str] | None = None, *, root: Path = ROOT) -> int:
     parser.add_argument("remaining", nargs=argparse.REMAINDER)
     args = parser.parse_args(argv)
     command = args.command
+    if command == "data":
+        from scoring_system.market_data import main as data_main
+        return data_main(args.remaining)
 
     if command == "show-help":
         _print_help()

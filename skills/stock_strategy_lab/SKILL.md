@@ -2,6 +2,10 @@
 name: stock_strategy_lab
 description: 股票AI交易助手的本地协作规则，用于指导Codex/GPT进行市场、板块、个股、执行、仓位、持仓和复盘相关任务。Use this skill when working on the stock AI assistant project, migration packages, daily market reports, closed tests, or model-governance reviews.
 ---
+## 股票数据源强制入口
+
+先读取仓库根目录 `DATA_SOURCES.md`。所有 A 股取数强制 hithink-finance -> mootdx（仅分钟线），无 Tushare 或其他自动回退。旧报告/备份不是现行取数规则。
+
 
 # 股票AI交易助手协作规则
 

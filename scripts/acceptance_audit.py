@@ -1,4 +1,5 @@
-﻿from __future__ import annotations
+from __future__ import annotations
+from scoring_system.tushare_client import credential_marker
 
 import json
 import os
@@ -95,7 +96,7 @@ def tushare_probe() -> tuple[dict[str, Any], Any | None, str]:
     before = proxy_snapshot()
     fix = clear_bad_tushare_proxy()
     after_proxies = get_environ_proxies("http://api.waditu.com/dataapi/trade_cal")
-    token = os.environ.get("TUSHARE_TOKEN") or os.environ.get("TUSHARE_TOKEN_PRO")
+    token = credential_marker() or credential_marker()
     result: dict[str, Any] = {
         "python_path": sys.executable,
         "token_status": "missing" if not token else f"present length={len(token)} masked={token[:3]}***{token[-3:]}",
@@ -111,11 +112,11 @@ def tushare_probe() -> tuple[dict[str, Any], Any | None, str]:
         "error_category": "",
     }
     if not token:
-        result["error_category"] = "Token问题：TUSHARE_TOKEN不可见"
-        issue("BLOCKER", "TUSHARE_TOKEN不可见", "不能完成在线验收")
+        result["error_category"] = "Token问题：HITHINK_FINANCE_API_KEY不可见"
+        issue("BLOCKER", "HITHINK_FINANCE_API_KEY不可见", "不能完成在线验收")
         return result, None, ""
     try:
-        import tushare as ts
+        from scoring_system import tushare_client as ts
         result["tushare_version"] = getattr(ts, "__version__", "unknown")
         pro = ts.pro_api(token)
         today = datetime.now().strftime("%Y%m%d")

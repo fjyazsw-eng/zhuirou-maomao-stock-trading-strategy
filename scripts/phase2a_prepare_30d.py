@@ -1,4 +1,5 @@
-﻿from __future__ import annotations
+from __future__ import annotations
+from scoring_system.tushare_client import credential_marker
 
 import json
 import os
@@ -353,8 +354,8 @@ def main() -> int:
     ensure_dirs()
     if not args.no_api:
         clear_bad_tushare_proxy()
-    token = os.getenv("TUSHARE_TOKEN")
-    import tushare as ts
+    token = credential_marker()
+    from scoring_system import tushare_client as ts
 
     connection = {
         "python_path": sys.executable,
@@ -371,7 +372,7 @@ def main() -> int:
         connection["daily_basic"] = "离线模式未测试"
         dates = discover_local_dates()
     elif not token:
-        raise RuntimeError("TUSHARE_TOKEN missing")
+        raise RuntimeError("HITHINK_FINANCE_API_KEY missing")
     else:
         pro = ts.pro_api(token)
 

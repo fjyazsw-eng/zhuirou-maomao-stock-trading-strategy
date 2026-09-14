@@ -1,8 +1,9 @@
-﻿"""Build latest concise market decision report v2.
+"""Build latest concise market decision report v2.
 
 Data-only report. No trading instruction. No token printing.
 """
 from __future__ import annotations
+from scoring_system.tushare_client import credential_marker
 
 import math
 import os
@@ -12,7 +13,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 import pandas as pd
-import tushare as ts
+from scoring_system import tushare_client as ts
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 RAW_DIR = PROJECT_ROOT / "data" / "raw"
@@ -37,9 +38,9 @@ SEMICONDUCTOR_TAGS = {
 
 
 def pro_api():
-    token = os.getenv("TUSHARE_TOKEN")
+    token = credential_marker()
     if not token:
-        raise RuntimeError("TUSHARE_TOKEN 不存在")
+        raise RuntimeError("HITHINK_FINANCE_API_KEY 不存在")
     return ts.pro_api(token)
 
 

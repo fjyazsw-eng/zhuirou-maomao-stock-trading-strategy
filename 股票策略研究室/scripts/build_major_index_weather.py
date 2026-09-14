@@ -1,4 +1,4 @@
-﻿"""Build major index weather evidence table.
+"""Build major index weather evidence table.
 
 This module prepares 20-trading-day index evidence for style judgment. It uses
 local caches first, only calls Tushare when an index roster or index daily cache
@@ -6,6 +6,7 @@ is incomplete, and never prints or stores the token.
 """
 
 from __future__ import annotations
+from scoring_system.tushare_client import credential_marker
 
 import argparse
 import os
@@ -16,7 +17,7 @@ from pathlib import Path
 from typing import Callable
 
 import pandas as pd
-import tushare as ts
+from scoring_system import tushare_client as ts
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 RAW_DIR = PROJECT_ROOT / "data" / "raw"
@@ -67,9 +68,9 @@ def complete_csv(path: Path, fields: list[str], min_rows: int = 1) -> tuple[bool
 
 
 def get_pro() -> object:
-    token = os.getenv("TUSHARE_TOKEN")
+    token = credential_marker()
     if not token:
-        raise RuntimeError("TUSHARE_TOKEN 不存在")
+        raise RuntimeError("HITHINK_FINANCE_API_KEY 不存在")
     return ts.pro_api(token)
 
 

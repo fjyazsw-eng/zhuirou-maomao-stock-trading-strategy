@@ -7,20 +7,14 @@ paths:
   market_database: data/sqlite/market_120d.sqlite
 
 data_sources:
-  tushare:
-    token_env_keys:
-      - TUSHARE_REPLAY_API_KEY
-      - TUSHARE_TOKEN
-      - TUSHARE_TOKEN_PRO
-    use_for:
-      - post_close_daily_data
-      - historical_market_data
-      - sector_membership
-      - light_fundamental_checks
-  eastmoney:
-    use_for:
-      - intraday_temporary_snapshot
-      - read_only_intraday_veto
+  primary: hithink-finance
+  key_env: HITHINK_FINANCE_API_KEY
+  minute_only: mootdx
+  minute_intervals: [1m, 5m, 15m, 30m, 60m]
+  fallback: []
+  on_failure: error
+  allow_mock: false
+  allow_unknown_cache: false
 
 workflow:
   default_quantity: 100

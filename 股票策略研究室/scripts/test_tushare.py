@@ -1,4 +1,4 @@
-﻿"""Tushare daily endpoint focused test.
+"""Tushare daily endpoint focused test.
 
 Safety rules:
 - Never print the full Tushare token.
@@ -9,6 +9,7 @@ Safety rules:
 """
 
 from __future__ import annotations
+from scoring_system.tushare_client import credential_marker
 
 import os
 import sys
@@ -89,17 +90,17 @@ def main() -> int:
                 print(f"本地文件缺少字段: {','.join(cached_missing)}")
 
     try:
-        import tushare as ts
+        from scoring_system import tushare_client as ts
         print(f"tushare版本: {getattr(ts, '__version__', 'unknown')}")
     except Exception as exc:
         print(f"tushare检查: 程序异常: {exc}")
         return 1
 
-    token = os.getenv("TUSHARE_TOKEN")
+    token = credential_marker()
     if not token:
-        print("TUSHARE_TOKEN: 不存在")
+        print("HITHINK_FINANCE_API_KEY: 不存在")
         return 1
-    print(f"TUSHARE_TOKEN: 存在，长度={len(token)}，不打印完整Token")
+    print(f"HITHINK_FINANCE_API_KEY: 存在，长度={len(token)}，不打印完整Token")
 
     ts.set_token(token)
     pro = ts.pro_api()

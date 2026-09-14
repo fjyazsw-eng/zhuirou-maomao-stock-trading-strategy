@@ -1,4 +1,5 @@
 from __future__ import annotations
+from scoring_system.tushare_client import credential_marker
 
 import importlib
 import os
@@ -116,11 +117,11 @@ def check_walk_forward_db() -> None:
 
 
 def check_token() -> None:
-    token = os.environ.get("TUSHARE_REPLAY_API_KEY") or os.environ.get("TUSHARE_TOKEN") or os.environ.get("TUSHARE_TOKEN_PRO")
+    token = credential_marker() or credential_marker() or credential_marker()
     if token:
         ok("Tushare credential configured (value hidden)")
     else:
-        warn("TUSHARE_TOKEN not configured")
+        warn("HITHINK_FINANCE_API_KEY not configured")
 
 
 def check_proxy() -> None:
@@ -183,7 +184,7 @@ def main() -> int:
     check_report_write()
     check_demo()
     check_test_runner()
-    if os.environ.get("TUSHARE_REPLAY_API_KEY") or os.environ.get("TUSHARE_TOKEN") or os.environ.get("TUSHARE_TOKEN_PRO"):
+    if credential_marker() or credential_marker() or credential_marker():
         probe = subprocess.run([sys.executable, "scripts/tushare_realtime_probe.py"], cwd=ROOT, text=True, capture_output=True, encoding="utf-8", errors="replace")
         if probe.returncode == 0:
             ok("Tushare data source reachable")

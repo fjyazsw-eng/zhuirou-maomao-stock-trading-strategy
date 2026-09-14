@@ -1,4 +1,4 @@
-﻿"""Build a 5-trading-day market weather report from Tushare daily data.
+"""Build a 5-trading-day market weather report from Tushare daily data.
 
 Rules:
 - Tushare daily.amount is thousand CNY; use amount_units helpers only.
@@ -8,6 +8,7 @@ Rules:
 """
 
 from __future__ import annotations
+from scoring_system.tushare_client import credential_marker
 
 import argparse
 import os
@@ -113,10 +114,10 @@ def read_local_daily(date: str) -> pd.DataFrame | None:
 
 def fetch_daily_from_tushare(date: str, pro_api_factory: Callable[[], object] | None = None) -> pd.DataFrame:
     if pro_api_factory is None:
-        import tushare as ts
-        token = os.getenv("TUSHARE_TOKEN")
+        from scoring_system import tushare_client as ts
+        token = credential_marker()
         if not token:
-            raise RuntimeError("TUSHARE_TOKEN 不存在")
+            raise RuntimeError("HITHINK_FINANCE_API_KEY 不存在")
         pro = ts.pro_api(token)
     else:
         pro = pro_api_factory()

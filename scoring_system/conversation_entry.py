@@ -86,15 +86,17 @@ def _feature_line(payload: dict[str, object]) -> str:
     return "；".join(parts) if parts else "功能矩阵未检测"
 
 
-def read_verified_market_snapshot() -> dict[str, object]:
-    path = REPORTS / "fast_context" / VERIFIED_SNAPSHOT_NAME
-    if not path.exists():
-        return {}
+def read_verified_market_snapshot():
+    path=REPORTS / 'fast_context' / VERIFIED_SNAPSHOT_NAME
+    if not path.exists(): return {}
     try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
-    except Exception:
+        payload=json.loads(path.read_text(encoding='utf-8'))
+        from scoring_system.market_data import require_current_source
+        require_current_source(payload)
+    except (ValueError, RuntimeError, TypeError):
         return {}
-    return payload if isinstance(payload, dict) else {}
+    return payload
+
 
 
 def _feature_line_from_snapshot(payload: dict[str, object]) -> str:
@@ -128,40 +130,12 @@ def _status_from_verified_snapshot(payload: dict[str, object]) -> dict[str, str]
     }
 
 
-def read_tushare_status() -> dict[str, str]:
-    verified = read_verified_market_snapshot()
-    if verified:
-        return _status_from_verified_snapshot(verified)
+def read_tushare_status():
+    verified=read_verified_market_snapshot()
+    if verified: return _status_from_verified_snapshot(verified)
+    return {'status':'BLOCKED','endpoint':'hithink-finance','latest_trade_date':'-',
+            'data_trade_date':'-','message':'缺少同花顺已验证数据；旧缓存已禁用','feature_line':'数据缺失'}
 
-    path = REPORTS / "tushare" / "latest_tushare_status.json"
-    if not path.exists():
-        return {
-            "status": "待确认",
-            "endpoint": "-",
-            "latest_trade_date": "-",
-            "data_trade_date": "-",
-            "message": "未检测到最近探针结果",
-            "feature_line": "功能矩阵未检测",
-        }
-    try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
-    except Exception:
-        return {
-            "status": "待确认",
-            "endpoint": "-",
-            "latest_trade_date": "-",
-            "data_trade_date": "-",
-            "message": "探针结果无法解析",
-            "feature_line": "功能矩阵未检测",
-        }
-    return {
-        "status": str(payload.get("status", "待确认")),
-        "endpoint": str(payload.get("endpoint", "-")),
-        "latest_trade_date": str(payload.get("latest_trade_date", "-")),
-        "data_trade_date": str(payload.get("data_trade_date", "-")),
-        "message": str(payload.get("message", "")),
-        "feature_line": _feature_line(payload),
-    }
 
 
 def classify_question(question: str, holdings: str) -> str:
@@ -257,7 +231,7 @@ def report_snapshot() -> dict[str, str]:
             down = int(breadth.get("down") or 0)
             flat = int(breadth.get("flat") or 0)
             return {
-                "weather": f"已验证市场状态：{state}；Tushare日期 {trade_date}；核心指数均值 {avg_text}",
+                "weather": f"已验证市场状态：{state}；同花顺日期 {trade_date}；核心指数均值 {avg_text}",
                 "up": f"上涨家数：{up}",
                 "down": f"下跌家数：{down}",
                 "turnover": f"平盘家数：{flat}",
@@ -265,16 +239,8 @@ def report_snapshot() -> dict[str, str]:
                 "source": "verified_market_snapshot",
             }
 
-    text = read_text(REPORTS / "latest_market_decision_report.md", 5000)
-    weather = extract_lines(text, ["- 大盘天气评分", "- 上涨家数", "- 下跌家数", "- 今日成交"], 4)
-    return {
-        "weather": weather[0] if len(weather) > 0 else "大盘环境数据缺失",
-        "up": weather[1] if len(weather) > 1 else "",
-        "down": weather[2] if len(weather) > 2 else "",
-        "turnover": weather[3] if len(weather) > 3 else "",
-        "state": "",
-        "source": "latest_market_decision_report",
-    }
+    return {'trade_date':'-','weather':'数据缺失','weather_line':'缺少同花顺已验证数据',
+            'mainline':'数据缺失','source':'unavailable'}
 
 
 def market_state_from_text(weather_line: str) -> str:
@@ -314,7 +280,7 @@ def tushare_block(status: dict[str, str]) -> str:
     return compact_table(
         "数据状态",
         [
-            ("Tushare状态", label),
+            ("同花顺状态", label),
             ("最新交易日", status["latest_trade_date"]),
             ("行情落点", status["data_trade_date"]),
             ("功能能力", status.get("feature_line", "功能矩阵未检测")),
@@ -471,9 +437,9 @@ def answer(question: str, cash: float | None = None, holdings: str = "") -> str:
                 [
                     "当前建议",
                     "先不做新的确定性买入判断，只处理已有风控。",
-                    f"异常说明：{status['message'] or '优先怀疑 Tushare 接入或返回问题。'}",
+                    f"异常说明：{status['message'] or '优先怀疑 同花顺 接入或返回问题。'}",
                     "下一步",
-                    "- 先跑一次 Tushare 探针确认 daily / daily_basic / trade_cal 是否完整。",
+                    "- 先跑一次 同花顺 探针确认 daily / daily_basic / trade_cal 是否完整。",
                     "- 数据恢复前，只保留止损、减仓、持有这类防守结论。",
                 ]
             ),

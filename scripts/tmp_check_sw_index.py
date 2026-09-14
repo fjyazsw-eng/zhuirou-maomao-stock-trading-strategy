@@ -1,8 +1,9 @@
+from scoring_system.tushare_client import credential_marker
 import os
 
-import tushare as ts
+from scoring_system import tushare_client as ts
 
-pro = ts.pro_api(os.getenv("TUSHARE_TOKEN"))
+pro = ts.pro_api(credential_marker())
 for code in ["801084.SI", "850813.SI", "850861.SI"]:
     df = pro.index_daily(
         ts_code=code,

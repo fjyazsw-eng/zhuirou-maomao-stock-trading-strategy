@@ -1,8 +1,9 @@
+from scoring_system.tushare_client import credential_marker
 import os
 
-import tushare as ts
+from scoring_system import tushare_client as ts
 
-pro = ts.pro_api(os.getenv("TUSHARE_TOKEN"))
+pro = ts.pro_api(credential_marker())
 try:
     df = pro.margin_detail(
         trade_date="20260630",

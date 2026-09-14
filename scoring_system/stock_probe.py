@@ -74,45 +74,15 @@ def latest_local_quote(ts_code: str, as_of: str) -> dict[str, Any]:
     return {} if df.empty else df.iloc[0].to_dict()
 
 
-def current_quote(ts_code: str, timeout: int = 8) -> dict[str, Any]:
-    url = (
-        "https://push2.eastmoney.com/api/qt/stock/get?"
-        f"secid={secid(ts_code)}&fields=f43,f44,f45,f46,f47,f48,f50,f57,f58,f60,f86,f116,f117,f168,f170"
-    )
-    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0", "Referer": "https://quote.eastmoney.com/"})
-    try:
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            payload = json.loads(resp.read().decode("utf-8", errors="replace"))
-    except Exception as exc:
-        return {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
-    data = payload.get("data") or {}
-    if not data:
-        return {"ok": False, "error": "实时行情为空"}
+def current_quote(ts_code, timeout=8):
+    from scoring_system.market_data import snapshot
+    result=snapshot(ts_code); data=result['data']; row=data['item'][0]
+    return {'ok':True,'source':'hithink-finance','snapshot_time':data.get('timestamp'),
+            'price':row['last_price'],'high':row.get('high_price'),'low':row.get('low_price'),
+            'open':row.get('open_price'),'pre_close':row.get('prev_price'),
+            'pct_chg':row.get('price_change_ratio_pct'),'amount_yuan':row.get('turnover'),
+            'volume_ratio':None,'turnover_rate':None,'total_mv_yuan':None,'circ_mv_yuan':None}
 
-    def scaled(field: str) -> float | None:
-        value = data.get(field)
-        if value in (None, "-", ""):
-            return None
-        return float(value) / 100
-
-    ts = data.get("f86")
-    snapshot_time = datetime.fromtimestamp(ts).strftime("%Y-%m-%d %H:%M:%S") if isinstance(ts, (int, float)) else ""
-    return {
-        "ok": True,
-        "source": "东方财富实时行情接口",
-        "snapshot_time": snapshot_time,
-        "price": scaled("f43"),
-        "high": scaled("f44"),
-        "low": scaled("f45"),
-        "open": scaled("f46"),
-        "pre_close": scaled("f60"),
-        "pct_chg": scaled("f170"),
-        "amount_yuan": data.get("f48"),
-        "volume_ratio": scaled("f50"),
-        "turnover_rate": scaled("f168"),
-        "total_mv_yuan": data.get("f116"),
-        "circ_mv_yuan": data.get("f117"),
-    }
 
 
 def sector_membership(ts_code: str) -> list[dict[str, Any]]:

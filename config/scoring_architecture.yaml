@@ -125,9 +125,9 @@ python_runtime:
     - "run_score.bat"
     - "run_backtest.bat"
   token_policy:
-    source: "TUSHARE_TOKEN environment variable"
+    source: "HITHINK_FINANCE_API_KEY environment variable"
     never_print_full_token: true
-    allowed_log: "present/missing, length, masked prefix/suffix only"
+    allowed_log: "present/missing only; never print length or fragments"
 
 unit_standard:
   required_before_feature_engine: true

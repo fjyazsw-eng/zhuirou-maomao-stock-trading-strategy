@@ -9,19 +9,9 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 
-TRENDS_URLS = [
-    "https://push2delay.eastmoney.com/api/qt/stock/trends2/get",
-    "https://push2his.eastmoney.com/api/qt/stock/trends2/get",
-]
-MONEY_FLOW_URLS = [
-    "https://push2delay.eastmoney.com/api/qt/stock/fflow/kline/get",
-    "https://push2.eastmoney.com/api/qt/stock/fflow/kline/get",
-]
-HEADERS = {
-    "Accept": "application/json",
-    "Referer": "https://quote.eastmoney.com/",
-    "User-Agent": "Mozilla/5.0 stock-ai-assistant/1.0",
-}
+TRENDS_URLS = []
+MONEY_FLOW_URLS = []
+HEADERS = {}
 
 
 @dataclass(frozen=True)
@@ -75,37 +65,16 @@ def secid_for_code(code: str) -> str:
     return f"1.{digits}" if digits.startswith(("6", "9")) else f"0.{digits}"
 
 
-def _session(trust_env: bool) -> requests.Session:
-    session = requests.Session()
-    session.trust_env = trust_env
-    retry = Retry(
-        total=2,
-        connect=2,
-        read=2,
-        backoff_factor=0.4,
-        status_forcelist=(429, 500, 502, 503, 504),
-        allowed_methods=frozenset({"GET"}),
-    )
-    session.mount("http://", HTTPAdapter(max_retries=retry))
-    session.mount("https://", HTTPAdapter(max_retries=retry))
-    return session
+def _session(*args, **kwargs):
+    from scoring_system.market_data import DataSourceError
+    raise DataSourceError('External provider disabled')
 
 
-def _get_json(urls: list[str], params: dict[str, Any], timeout: int = 15) -> dict[str, Any]:
-    errors: list[str] = []
-    for url in urls:
-        for trust_env in (True, False):
-            try:
-                response = _session(trust_env).get(url, params=params, headers=HEADERS, timeout=timeout)
-                response.raise_for_status()
-                response.encoding = "utf-8"
-                payload = response.json()
-                if int(payload.get("rc", 0)) not in {0}:
-                    raise RuntimeError(f"eastmoney_rc_{payload.get('rc')}")
-                return payload
-            except (requests.RequestException, ValueError, RuntimeError) as exc:
-                errors.append(f"url={url},trust_env={trust_env}:{type(exc).__name__}:{str(exc)[:140]}")
-    raise RuntimeError("; ".join(errors))
+
+def _get_json(*args, **kwargs):
+    from scoring_system.market_data import DataSourceError
+    raise DataSourceError('External provider disabled; use hithink-finance / mootdx')
+
 
 
 def parse_trend_rows(rows: list[str]) -> list[MinuteBar]:
@@ -170,59 +139,26 @@ def _same_time_amount_ratio(bars: list[MinuteBar]) -> float | None:
     return current / (sum(historical[-5:]) / len(historical[-5:]))
 
 
-def fetch_intraday_snapshot(code: str, ndays: int = 5) -> IntradaySnapshot:
-    secid = secid_for_code(code)
-    payload = _get_json(
-        TRENDS_URLS,
-        {
-            "secid": secid,
-            "fields1": "f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13",
-            "fields2": "f51,f52,f53,f54,f55,f56,f57,f58",
-            "ndays": max(1, min(int(ndays), 5)),
-            "iscr": "0",
-            "iscca": "0",
-        },
-    )
-    data = payload.get("data") or {}
-    bars = parse_trend_rows(data.get("trends") or [])
-    if not bars:
-        raise RuntimeError(f"eastmoney trends empty for {code}")
-    latest_date = bars[-1].timestamp.date()
-    today = [bar for bar in bars if bar.timestamp.date() == latest_date]
-    prev_close = float(data.get("preClose") or data.get("prePrice") or 0)
-    latest = today[-1]
-    return IntradaySnapshot(
-        secid=secid,
-        code=str(data.get("code") or code),
-        name=str(data.get("name") or code),
-        trade_time=latest.timestamp,
-        price=latest.close,
-        prev_close=prev_close,
-        pct_chg=((latest.close / prev_close - 1) * 100) if prev_close else 0.0,
-        open=today[0].open,
-        high=max(bar.high for bar in today),
-        low=min(bar.low for bar in today),
-        volume=sum(bar.volume for bar in today),
-        amount=sum(bar.amount for bar in today),
-        same_time_amount_ratio_5d=_same_time_amount_ratio(bars),
-        bars=tuple(today),
-    )
+def fetch_intraday_snapshot(code, ndays=5):
+    from scoring_system.market_data import minutes, snapshot, DataSourceError
+    if '.' not in code or code.startswith(('0.','1.','90.')):
+        raise DataSourceError('Use verified thscode for minute data; legacy sector secid is not supported')
+    quote=snapshot(code)['data']['item'][0]
+    data=minutes(code,'1m',min(800,240*ndays))['data']
+    bars=[MinuteBar(timestamp=datetime.fromisoformat(r['datetime']),open=r['open'],close=r['close'],high=r['high'],low=r['low'],volume=r['vol'],amount=r['amount'],average_price=None) for r in data]
+    latest=bars[-1]; today=[b for b in bars if b.timestamp.date()==latest.timestamp.date()]
+    return IntradaySnapshot(secid=code,code=code,name=code,trade_time=latest.timestamp,
+        price=latest.close,prev_close=quote['prev_price'],pct_chg=(latest.close/quote['prev_price']-1)*100,
+        open=today[0].open,high=max(b.high for b in today),low=min(b.low for b in today),
+        volume=sum(b.volume for b in today),amount=sum(b.amount for b in today),
+        same_time_amount_ratio_5d=None,bars=tuple(today))
 
 
-def fetch_money_flow(code: str, limit: int = 30) -> list[MoneyFlowPoint]:
-    secid = secid_for_code(code)
-    payload = _get_json(
-        MONEY_FLOW_URLS,
-        {
-            "secid": secid,
-            "fields1": "f1,f2,f3,f7",
-            "fields2": "f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61,f62,f63",
-            "klt": "1",
-            "lmt": max(10, int(limit)),
-        },
-    )
-    data = payload.get("data") or {}
-    return parse_money_flow_rows(data.get("klines") or [])
+
+def fetch_money_flow(code, limit=30):
+    from scoring_system.market_data import DataSourceError
+    raise DataSourceError('Minute money-flow breakdown is not supported by configured sources; no fallback')
+
 
 
 def aggregate_five_minute(bars: tuple[MinuteBar, ...] | list[MinuteBar]) -> list[MinuteBar]:

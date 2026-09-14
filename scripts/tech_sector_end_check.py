@@ -1,4 +1,5 @@
 from __future__ import annotations
+from scoring_system.tushare_client import credential_marker
 
 import json
 import os
@@ -8,7 +9,7 @@ import time
 from pathlib import Path
 
 import pandas as pd
-import tushare as ts
+from scoring_system import tushare_client as ts
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -34,9 +35,9 @@ TARGETS = {
 
 
 def pro_api():
-    token = os.getenv("TUSHARE_TOKEN")
+    token = credential_marker()
     if not token:
-        raise RuntimeError("TUSHARE_TOKEN is not set")
+        raise RuntimeError("HITHINK_FINANCE_API_KEY is not set")
     pro = ts.pro_api(token)
     try:
         pro._DataApi__timeout = 120

@@ -1,9 +1,0 @@
-{
-  "feishu": {
-    "enabled": false,
-    "webhook_env": "FEISHU_WEBHOOK",
-    "webhook_url": "",
-    "secret_env": "FEISHU_SECRET",
-    "secret": ""
-  }
-}

@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import argparse
 import json
@@ -164,15 +164,10 @@ def fetch_open_trade_dates(pro: Any, end_date: str, window: int) -> list[str]:
     return sorted(str(value) for value in cal["cal_date"].astype(str).tolist())
 
 
-def get_pro() -> Any | None:
-    clear_bad_tushare_proxy()
-    token = os.getenv("TUSHARE_TOKEN")
-    if not token:
-        print("TUSHARE_TOKEN: missing; using local cache only")
-        return None
-    print(f"TUSHARE_TOKEN: present length={len(token)}; full token is not printed")
-    import tushare as ts
-    return ts.pro_api(token)
+def get_pro():
+    from scoring_system.tushare_client import get_tushare_pro
+    return get_tushare_pro()
+
 
 
 def fetch_if_needed(pro: Any | None, name: str, path: Path, fields: list[str], fetcher, min_rows: int = 1) -> str:

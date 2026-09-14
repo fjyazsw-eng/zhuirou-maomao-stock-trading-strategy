@@ -3,4 +3,4 @@ numpy>=1.26,<3
 PyYAML>=6,<7
 requests>=2.31,<3
 urllib3>=2,<3
-tushare>=1.4,<2
+mootdx==0.11.7

@@ -1,3 +1,7 @@
+
+## 股票数据源强制入口
+
+先读取仓库根目录 `DATA_SOURCES.md`。所有 A 股取数强制 hithink-finance -> mootdx（仅分钟线），无 Tushare 或其他自动回退。旧报告/备份不是现行取数规则。
 # 股票AI交易助手工作流快速启动
 
 这份文档给第一次接触项目的人或新 Codex 使用。
@@ -12,9 +16,9 @@
 
 - Python `>=3.11,<3.14`
 - Windows PowerShell、Linux shell 或 macOS shell
-- 可选：Tushare Token
+> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，mootdx 仅分钟线，失败报错。
 - 可选：本地行情数据库
-- 可选：东方财富网络连接
+> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，mootdx 仅分钟线，失败报错。
 
 Windows 推荐统一使用：
 
@@ -37,9 +41,9 @@ Linux/macOS 将 Python 路径换成 `.venv/bin/python`。
 复制 `.env.example` 为 `.env`，填写自己的 Token。
 
 ```text
-TUSHARE_REPLAY_API_KEY=
-TUSHARE_TOKEN=
-TUSHARE_TOKEN_PRO=
+> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，mootdx 仅分钟线，失败报错。
+> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，mootdx 仅分钟线，失败报错。
+> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，mootdx 仅分钟线，失败报错。
 ```
 
 不要把 `.env` 提交到 GitHub。检查输出只显示是否存在和掩码，不显示完整 Token。

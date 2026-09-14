@@ -1,4 +1,5 @@
 from __future__ import annotations
+from scoring_system.tushare_client import credential_marker
 
 import argparse
 import json
@@ -69,7 +70,7 @@ def load_dotenv() -> None:
 
 def token_value() -> str:
     load_dotenv()
-    return os.environ.get("TUSHARE_TOKEN", "") or os.environ.get("TUSHARE_TOKEN_PRO", "")
+    return credential_marker() or credential_marker()
 
 
 def make_dirs(db_path: Path, cache_dir: Path, temp_dir: Path, log_dir: Path) -> None:
@@ -249,8 +250,8 @@ def pro_api() -> Any:
         clear_bad_tushare_proxy()
     token = token_value()
     if not token:
-        raise RuntimeError("TUSHARE_TOKEN 不可见")
-    import tushare as ts
+        raise RuntimeError("HITHINK_FINANCE_API_KEY 不可见")
+    from scoring_system import tushare_client as ts
 
     return ts.pro_api(token)
 

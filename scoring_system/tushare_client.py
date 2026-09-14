@@ -1,241 +1,96 @@
+"""Retired provider compatibility names; all supported calls use HiThink only.
+
+Unsupported legacy schemas fail explicitly instead of changing provider or fabricating fields.
+"""
 from __future__ import annotations
-
+from datetime import datetime, timezone, timedelta
+from pathlib import Path
 import os
-import socket
-from functools import partial
-from typing import Any
-from urllib.parse import urlparse
-
 import pandas as pd
-import requests
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
+from scoring_system.market_data import request, credentials, DataSourceError
 
-from scoring_system.network_env import clear_bad_tushare_proxy
+def load_dotenv(root=None):
+    # Legacy callers may load non-secret application settings, never provider tokens.
+    return None
 
-REPLAY_BASE_URLS = [
-    "http://127.0.0.1:8000/tushare/pro",
-    "https://ai-tool.indevs.in/tushare/pro",
-    "https://tushare.indevs.in/tushare/pro",
-]
+def token_value():
+    return ''
+def replay_api_key():
+    return ''
+def http_url_value():
+    return ''
+def should_use_env_proxy_for_url(url):
+    return True
 
-DNS_FALLBACKS = {
-    "ai-tool.indevs.in": ["172.67.197.91"],
-    "tushare.indevs.in": ["172.67.197.91"],
-}
+def _date_ms(value):
+    return int(datetime.strptime(value, '%Y%m%d').replace(tzinfo=timezone(timedelta(hours=8))).timestamp()*1000)
 
-_DNS_PATCHED = False
-_ORIGINAL_GETADDRINFO = socket.getaddrinfo
-_ORIGINAL_GETHOSTBYNAME = socket.gethostbyname
+class HiThinkLegacyAdapter:
+    def query(self, api_name, fields='', **kwargs):
+        if api_name == 'daily' and kwargs.get('ts_code'):
+            symbol=kwargs['ts_code']
+            start=kwargs.get('start_date') or kwargs.get('trade_date')
+            end=kwargs.get('end_date') or kwargs.get('trade_date')
+            if not start or not end:
+                raise DataSourceError('hithink-finance: daily requires explicit date range')
+            result=request('a-share.prices.historical',thscode=symbol,interval='1d',start=_date_ms(start),end=_date_ms(end)+86399999,adjust='none')
+            rows=result['data'].get('item')
+            if not rows:
+                raise DataSourceError('hithink-finance: daily data empty')
+            frame=pd.DataFrame(rows).rename(columns={'open_price':'open','high_price':'high','low_price':'low','close_price':'close'})
+            frame['trade_date']=pd.to_datetime(frame['date_ms'],unit='ms',utc=True).dt.tz_convert('Asia/Shanghai').dt.strftime('%Y%m%d')
+            frame['ts_code']=symbol
+            frame['vol']=frame['volume']/100 # Legacy daily expects lots.
+            frame['amount']=frame['turnover']/1000 # Legacy daily expects thousand yuan.
+            frame=frame.sort_values('trade_date')
+            frame['pre_close']=frame['close'].shift(1)
+            frame['change']=frame['close']-frame['pre_close']
+            frame['pct_chg']=frame['change']/frame['pre_close']*100
+            frame=frame.sort_values('trade_date',ascending=False)
+        elif api_name == 'trade_cal':
+            result=request('a-share.calendar.trading-days')
+            rows=result['data'].get('item') or []
+            if not rows:raise DataSourceError('hithink-finance: trading calendar empty')
+            frame=pd.DataFrame({'cal_date':[str(x['date']) for x in rows]})
+            start=kwargs.get('start_date',frame['cal_date'].min());end=kwargs.get('end_date',frame['cal_date'].max())
+            if start < frame['cal_date'].min() or end > frame['cal_date'].max() or str(kwargs.get('is_open','1')) != '1':
+                raise DataSourceError('hithink-finance: requested calendar range/closed dates not supported; no fabricated dates')
+            frame=frame[(frame.cal_date>=start)&(frame.cal_date<=end)].copy();frame['is_open']=1
+        else:
+            raise DataSourceError(f'hithink-finance: legacy schema {api_name} is not supported; use market_data public capability with official parameters; no fallback')
+        if fields:
+            missing=set(fields.split(','))-set(frame.columns)
+            if missing:raise DataSourceError('hithink-finance: requested legacy fields not available: '+','.join(sorted(missing)))
+            frame=frame[fields.split(',')]
+        frame.attrs['source']='hithink-finance'
+        return frame
+    def __getattr__(self,name):
+        return lambda **kwargs:self.query(name,**kwargs)
 
+def get_tushare_pro(root=None):
+    credentials()
+    return HiThinkLegacyAdapter()
 
-def load_dotenv(root: str | os.PathLike[str] | None = None) -> None:
-    env_path = os.path.join(str(root or os.getcwd()), ".env")
-    if not os.path.exists(env_path):
-        return
-    with open(env_path, "r", encoding="utf-8", errors="ignore") as handle:
-        for line in handle:
-            stripped = line.strip()
-            if not stripped or stripped.startswith("#") or "=" not in stripped:
-                continue
-            key, value = stripped.split("=", 1)
-            key = key.strip()
-            value = value.strip().strip('"').strip("'")
-            force_project_value = key in {
-                "TUSHARE_TOKEN",
-                "TUSHARE_TOKEN_PRO",
-                "TUSHARE_HTTP_URL",
-                "TUSHARE_API_URL",
-                "TUSHARE_REPLAY_API_KEY",
-            }
-            if key and (force_project_value or key not in os.environ):
-                os.environ[key] = value
+def pro_api(*args,**kwargs):
+    return get_tushare_pro()
 
-
-def _normalize_host(host: Any) -> Any:
-    if isinstance(host, bytes):
-        host = host.decode("ascii", "ignore")
-    return host.rstrip(".") if isinstance(host, str) else host
-
-
-def patch_replay_dns() -> None:
-    global _DNS_PATCHED
-    if _DNS_PATCHED:
-        return
-
-    def _getaddrinfo(host: Any, port: Any, family: int = 0, type: int = 0, proto: int = 0, flags: int = 0) -> Any:
-        try:
-            return _ORIGINAL_GETADDRINFO(host, port, family, type, proto, flags)
-        except socket.gaierror:
-            fallback_ips = DNS_FALLBACKS.get(_normalize_host(host))
-            if not fallback_ips:
-                raise
-            results: list[Any] = []
-            for fallback_ip in fallback_ips:
-                try:
-                    results.extend(_ORIGINAL_GETADDRINFO(fallback_ip, port, family, type, proto, flags))
-                except socket.gaierror:
-                    continue
-            if not results:
-                raise
-            return results
-
-    def _gethostbyname(host: Any) -> Any:
-        try:
-            return _ORIGINAL_GETHOSTBYNAME(host)
-        except socket.gaierror:
-            fallback_ips = DNS_FALLBACKS.get(_normalize_host(host))
-            if not fallback_ips:
-                raise
-            return fallback_ips[0]
-
-    socket.getaddrinfo = _getaddrinfo
-    socket.gethostbyname = _gethostbyname
-    _DNS_PATCHED = True
-
-
-def replay_api_key() -> str:
-    return os.environ.get("TUSHARE_REPLAY_API_KEY", "")
-
-
-def token_value() -> str:
-    return os.environ.get("TUSHARE_TOKEN", "") or os.environ.get("TUSHARE_TOKEN_PRO", "")
-
-
-def http_url_value() -> str:
-    return os.environ.get("TUSHARE_HTTP_URL", "") or os.environ.get("TUSHARE_API_URL", "")
-
-
-def should_use_env_proxy_for_url(url: str) -> bool:
-    return False
-
-
-def build_session(use_env_proxy: bool = False) -> requests.Session:
-    session = requests.Session()
-    retry = Retry(
-        total=1,
-        connect=1,
-        read=1,
-        status=1,
-        backoff_factor=0.3,
-        status_forcelist=(500, 502, 503, 504),
-        allowed_methods=frozenset({"GET", "POST"}),
-        raise_on_status=False,
-    )
-    adapter = HTTPAdapter(max_retries=retry)
-    session.mount("http://", adapter)
-    session.mount("https://", adapter)
-    session.headers.update({"Accept": "application/json", "User-Agent": "tushare-relay-client/1.2"})
-    session.trust_env = use_env_proxy
-    if not use_env_proxy:
-        session.proxies.update({"http": "", "https": ""})
-    return session
-
-
-def payload_to_frame(payload: dict[str, Any]) -> pd.DataFrame:
-    data = payload.get("data")
-    if isinstance(data, dict):
-        fields = data.get("fields") or []
-        items = data.get("items") or []
-        return pd.DataFrame(items, columns=fields)
-    if isinstance(data, list):
-        return pd.DataFrame(data)
-    return pd.DataFrame()
-
+def set_token(*args,**kwargs):
+    raise DataSourceError('Tushare is disabled; use HITHINK_FINANCE_API_KEY')
 
 class ReplayDataApi:
-    def __init__(self, api_key: str, base_urls: list[str] | None = None, timeout: int = 12) -> None:
-        self.api_key = api_key
-        self.base_urls = base_urls or REPLAY_BASE_URLS
-        self.timeout = timeout
+    def __init__(self,*args,**kwargs):
+        raise DataSourceError('Tushare replay is disabled; no fallback')
+HttpPostDataApi=ReplayDataApi
 
-    def query(self, api_name: str, fields: str = "", **kwargs: Any) -> pd.DataFrame:
-        patch_replay_dns()
-        last_error = ""
-        params = dict(kwargs)
-        if fields:
-            params["fields"] = fields
-
-        for base_url in self.base_urls:
-            url = f"{base_url}/{api_name}"
-            session = build_session(use_env_proxy=should_use_env_proxy_for_url(url))
-            try:
-                response = session.get(url, headers={"X-API-Key": self.api_key}, params=params, timeout=self.timeout)
-            except requests.exceptions.RequestException as exc:
-                last_error = f"network_error(base_url={base_url}): {exc}"
-                continue
-
-            preview = response.text[:300].replace("\n", " ")
-            if response.status_code == 530 and "cloudflare tunnel error" in response.text.lower():
-                last_error = f"cloudflare_tunnel_unavailable(base_url={base_url})"
-                continue
-            if not response.ok:
-                last_error = f"http_{response.status_code}(base_url={base_url}): {preview}"
-                continue
-
-            try:
-                return payload_to_frame(response.json())
-            except ValueError as exc:
-                last_error = f"invalid_json(status={response.status_code}, base_url={base_url}): {exc}; preview={preview}"
-                continue
-
-        raise RuntimeError(last_error or f"{api_name} all_base_urls_failed")
-
-    def __getattr__(self, name: str) -> Any:
-        return partial(self.query, name)
+def build_session(*args,**kwargs):
+    raise DataSourceError('Legacy provider sessions disabled; use market_data gateway')
+def patch_replay_dns():
+    raise DataSourceError('Tushare replay DNS is disabled')
 
 
-class HttpPostDataApi:
-    def __init__(self, token: str, url: str, timeout: int = 12) -> None:
-        self.token = token
-        self.url = url
-        self.timeout = timeout
-
-    def query(self, api_name: str, fields: str = "", **kwargs: Any) -> pd.DataFrame:
-        session = build_session(use_env_proxy=should_use_env_proxy_for_url(self.url))
-        payload = {
-            "api_name": api_name,
-            "token": self.token,
-            "params": kwargs,
-            "fields": fields,
-        }
-        response = session.post(
-            self.url,
-            json=payload,
-            headers={"Accept-Encoding": "gzip"},
-            timeout=self.timeout,
-        )
-        preview = response.text[:300].replace("\n", " ")
-        if not response.ok:
-            raise RuntimeError(f"http_{response.status_code}(url={self.url}): {preview}")
-        try:
-            data = response.json()
-        except ValueError as exc:
-            raise RuntimeError(f"invalid_json(status={response.status_code}, url={self.url}): {exc}; preview={preview}") from exc
-        if data.get("code") not in {0, None}:
-            raise RuntimeError(f"tushare_code_{data.get('code')}: {data.get('msg') or preview}")
-        return payload_to_frame(data)
-
-    def __getattr__(self, name: str) -> Any:
-        return partial(self.query, name)
-
-
-def get_tushare_pro(root: str | os.PathLike[str] | None = None) -> Any:
-    clear_bad_tushare_proxy()
-    load_dotenv(root)
-
-    token = token_value()
-    http_url = http_url_value()
-    if token and http_url:
-        return HttpPostDataApi(token=token, url=http_url)
-
-    api_key = replay_api_key()
-    if api_key:
-        return ReplayDataApi(api_key=api_key)
-
-    if not token:
-        raise RuntimeError("TUSHARE_TOKEN 和 TUSHARE_REPLAY_API_KEY 都不可见")
-
-    import tushare as ts
-
-    return ts.pro_api(token)
+def credential_marker():
+    try:
+        credentials()
+        return 'configured'
+    except DataSourceError:
+        return ''

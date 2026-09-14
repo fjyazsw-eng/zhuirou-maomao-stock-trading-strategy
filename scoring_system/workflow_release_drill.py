@@ -295,13 +295,13 @@ def run_cold_start_drill(*, output_root: Path) -> dict[str, Any]:
     (clone / "scoring_system" / "__init__.py").write_text("", encoding="utf-8")
     (clone / "requirements.txt").write_text("requests>=2\n", encoding="utf-8")
     (clone / "requirements-dev.txt").write_text("pytest>=8\n", encoding="utf-8")
-    (clone / ".env.example").write_text("TUSHARE_TOKEN=your_tushare_token_here\n", encoding="utf-8")
+    (clone / ".env.example").write_text("HITHINK_FINANCE_API_KEY=your_hithink_key_here\n", encoding="utf-8")
     (clone / "skills" / "stock-ai-workflow-controller" / "SKILL.md").write_text("# controller\n", encoding="utf-8")
     (clone / "config" / "project_config.example.yaml").write_text("project_name: stock-ai\n", encoding="utf-8")
     state = create_blank_state(now="2026-07-18T00:00:00")
     (clone / "reports" / "workflow" / "current_workflow_state.json").write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
-    missing = evaluate_setup(root=clone, env={"TUSHARE_TOKEN": ""}, skip_network=True, module_names=[])
-    ready = evaluate_setup(root=clone, env={"TUSHARE_TOKEN": "abc123xyz"}, skip_network=True, module_names=[])
+    missing = evaluate_setup(root=clone, env={"HITHINK_FINANCE_API_KEY": ""}, skip_network=True, module_names=[])
+    ready = evaluate_setup(root=clone, env={"HITHINK_FINANCE_API_KEY": "abc123xyz"}, skip_network=True, module_names=[])
     status = build_status(state)
     return {
         "status_after_missing_token": missing["status"],
@@ -374,9 +374,9 @@ def run_fault_recovery_drills(*, output_root: Path) -> dict[str, Any]:
     except Exception:
         not_writable_reported = True
 
-    import_failure = evaluate_setup(root=Path(__file__).resolve().parents[1], env={"TUSHARE_TOKEN": "abc123xyz"}, skip_network=True, module_names=["missing.module"])
-    token_missing = evaluate_setup(root=Path(__file__).resolve().parents[1], env={"TUSHARE_TOKEN": "", "TUSHARE_REPLAY_API_KEY": "", "TUSHARE_TOKEN_PRO": ""}, skip_network=True, module_names=[])
-    network_timeout = evaluate_setup(root=Path(__file__).resolve().parents[1], env={"TUSHARE_TOKEN": "abc123xyz"}, skip_network=False, module_names=[], network_timeout_seconds=0.001)
+    import_failure = evaluate_setup(root=Path(__file__).resolve().parents[1], env={"HITHINK_FINANCE_API_KEY": "abc123xyz"}, skip_network=True, module_names=["missing.module"])
+    token_missing = evaluate_setup(root=Path(__file__).resolve().parents[1], env={"HITHINK_FINANCE_API_KEY": ""}, skip_network=True, module_names=[])
+    network_timeout = evaluate_setup(root=Path(__file__).resolve().parents[1], env={"HITHINK_FINANCE_API_KEY": "abc123xyz"}, skip_network=False, module_names=[], network_timeout_seconds=0.001)
 
     return {
         "status": "PASS",
@@ -406,9 +406,7 @@ def build_release_audit(*, root: Path) -> dict[str, Any]:
         "scripts/run_simulated_live_v1_daily_flow.py",
         "scripts/run_demo.py",
     ]
-    safe_delete = []
-    if (root / "reports" / "workflow" / "tmp_snapshot_probe").exists():
-        safe_delete.append("reports/workflow/tmp_snapshot_probe")
+    safe_delete = ["reports/workflow/tmp_snapshot_probe"]
     for candidate in root.glob("scripts/tmp_*.py"):
         safe_delete.append(str(candidate.relative_to(root)).replace("\\", "/"))
     sensitive = [

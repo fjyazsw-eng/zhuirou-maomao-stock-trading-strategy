@@ -19,13 +19,16 @@ REFRESH_STATE_PATH = REPORTS / "workflow" / "latest_refresh_state.json"
 REFRESH_SCRIPT = ROOT / "scripts" / "refresh_latest_market_pipeline.py"
 
 
-def read_tushare_status() -> dict[str, Any]:
-    if not STATUS_PATH.exists():
-        return {}
+def read_tushare_status():
+    path=ROOT / 'reports/fast_context/latest_verified_market_snapshot.json'
     try:
-        return json.loads(STATUS_PATH.read_text(encoding="utf-8"))
-    except Exception:
-        return {}
+        payload=json.loads(path.read_text(encoding='utf-8'))
+        from scoring_system.market_data import require_current_source
+        require_current_source(payload)
+        return dict(payload.get('freshness') or {})
+    except (OSError, ValueError, RuntimeError, TypeError):
+        return {'status':'BLOCKED','message':'No verified hithink-finance cache; retired cache rejected'}
+
 
 
 def extract_report_date() -> str:

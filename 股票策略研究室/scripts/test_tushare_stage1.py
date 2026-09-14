@@ -1,4 +1,4 @@
-﻿"""Tushare stage-1 interface access check.
+"""Tushare stage-1 interface access check.
 
 Interfaces tested, at most once each when cache is incomplete:
 1. trade_cal
@@ -11,6 +11,7 @@ No full token printing. No brokerage access. No trading suggestions.
 """
 
 from __future__ import annotations
+from scoring_system.tushare_client import credential_marker
 
 import os
 import time
@@ -19,7 +20,7 @@ from pathlib import Path
 from typing import Callable
 
 import pandas as pd
-import tushare as ts
+from scoring_system import tushare_client as ts
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 RAW_DIR = PROJECT_ROOT / "data" / "raw"
@@ -149,11 +150,11 @@ def build_tasks() -> list[InterfaceTask]:
 
 
 def main() -> int:
-    token = os.getenv("TUSHARE_TOKEN")
+    token = credential_marker()
     if not token:
-        print("TUSHARE_TOKEN: 不存在")
+        print("HITHINK_FINANCE_API_KEY: 不存在")
         return 1
-    print(f"TUSHARE_TOKEN: 存在，长度={len(token)}，不打印完整Token")
+    print(f"HITHINK_FINANCE_API_KEY: 存在，长度={len(token)}，不打印完整Token")
     pro = ts.pro_api(token)
 
     results: list[InterfaceResult] = []

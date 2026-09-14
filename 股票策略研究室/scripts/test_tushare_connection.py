@@ -1,11 +1,12 @@
-﻿"""Minimal Tushare connection test.
+"""Minimal Tushare connection test.
 
-This script verifies that the local environment can read TUSHARE_TOKEN and call
+This script verifies that the local environment can read HITHINK_FINANCE_API_KEY and call
 one low-risk Tushare endpoint. It does not fetch market quotes, analyze stocks,
 connect to brokerage accounts, or generate trading suggestions.
 """
 
 from __future__ import annotations
+from scoring_system.tushare_client import credential_marker
 
 import os
 import sys
@@ -15,14 +16,14 @@ RATE_LIMIT_HINTS = ("频率超限", "每小时", "每分钟", "每秒")
 
 
 def main() -> int:
-    token = os.getenv("TUSHARE_TOKEN")
+    token = credential_marker()
     if not token:
-        print("FAIL: TUSHARE_TOKEN was not found in the current environment.")
+        print("FAIL: HITHINK_FINANCE_API_KEY was not found in the current environment.")
         print("Hint: reopen the terminal or Codex after running setx.")
         return 1
 
     try:
-        import tushare as ts
+        from scoring_system import tushare_client as ts
     except ImportError:
         print("FAIL: tushare is not installed in this Python environment.")
         print("Hint: run: python -m pip install tushare")
@@ -30,7 +31,7 @@ def main() -> int:
 
     print(f"Python: {sys.version.split()[0]}")
     print(f"Tushare: {getattr(ts, '__version__', 'unknown')}")
-    print(f"TUSHARE_TOKEN: loaded, length={len(token)}")
+    print(f"HITHINK_FINANCE_API_KEY: loaded, length={len(token)}")
 
     ts.set_token(token)
     pro = ts.pro_api()

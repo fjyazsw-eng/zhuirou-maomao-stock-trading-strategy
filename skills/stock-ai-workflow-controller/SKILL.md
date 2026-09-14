@@ -2,6 +2,10 @@
 name: stock-ai-workflow-controller
 description: Use as the top-level controller for the stock AI assistant weekly workflow, portable startup, status checks, next-step routing, systemic-risk gating, manual hexagram downgrade calibration, intraday veto, holding review, and weekly review.
 ---
+## 股票数据源强制入口
+
+先读取仓库根目录 `DATA_SOURCES.md`。所有 A 股取数强制 hithink-finance -> mootdx（仅分钟线），无 Tushare 或其他自动回退。旧报告/备份不是现行取数规则。
+
 
 # Stock AI Workflow Controller
 

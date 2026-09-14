@@ -1,0 +1,14 @@
+{
+  "primary": "hithink-finance",
+  "minute_only": "mootdx",
+  "minute_intervals": [
+    "1m",
+    "5m",
+    "15m",
+    "30m",
+    "60m"
+  ],
+  "fallback": [],
+  "allow_mock": false,
+  "allow_unknown_cache": false
+}

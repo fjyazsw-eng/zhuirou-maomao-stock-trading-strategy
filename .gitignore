@@ -26,3 +26,5 @@ config/telegram_bot.json
 desktop-*.png
 backups/
 股票策略研究室/reports/
+
+.cache/

@@ -23,7 +23,7 @@ def make_minimal_project(tmp_path: Path) -> Path:
     (root / "scoring_system" / "__init__.py").write_text("", encoding="utf-8")
     (root / "requirements.txt").write_text("requests>=2\n", encoding="utf-8")
     (root / "requirements-dev.txt").write_text("pytest>=8\n", encoding="utf-8")
-    (root / ".env.example").write_text("TUSHARE_TOKEN=\n", encoding="utf-8")
+    (root / ".env.example").write_text("HITHINK_FINANCE_API_KEY=\nMOOTDX_SERVER=\n", encoding="utf-8")
     (root / "skills" / "stock-ai-workflow-controller" / "SKILL.md").write_text("# controller\n", encoding="utf-8")
     state = {
         "workflow_version": "workflow_state_v1",
@@ -59,10 +59,10 @@ def test_quickstart_and_context_exist() -> None:
 
 def test_setup_ready_with_minimal_project_and_token(tmp_path: Path) -> None:
     root = make_minimal_project(tmp_path)
-    result = evaluate_setup(root=root, env={"TUSHARE_TOKEN": "abc123xyz"}, skip_network=True, module_names=[])
+    result = evaluate_setup(root=root, env={"HITHINK_FINANCE_API_KEY": "abc123xyz"}, skip_network=True, module_names=[])
 
     assert result["status"] == "READY"
-    assert "token_present:TUSHARE_TOKEN=abc***xyz" in result["passed_checks"]
+    assert "HITHINK_FINANCE_API_KEY present (not yet auth-verified)" in result["passed_checks"]
 
 
 def test_token_missing_is_not_ready_or_warning(tmp_path: Path) -> None:
@@ -70,12 +70,12 @@ def test_token_missing_is_not_ready_or_warning(tmp_path: Path) -> None:
     result = evaluate_setup(root=root, env={}, skip_network=True, module_names=[])
 
     assert result["status"] in {"NOT_READY", "READY_WITH_WARNINGS"}
-    assert any("Tushare token missing" in item for item in result["failed_checks"] + result["warnings"])
+    assert any("HITHINK_FINANCE_API_KEY missing" in item for item in result["failed_checks"] + result["warnings"])
 
 
 def test_import_failure_makes_not_ready(tmp_path: Path) -> None:
     root = make_minimal_project(tmp_path)
-    result = evaluate_setup(root=root, env={"TUSHARE_TOKEN": "abc123xyz"}, skip_network=True, module_names=["missing.module"])
+    result = evaluate_setup(root=root, env={"HITHINK_FINANCE_API_KEY": "abc123xyz"}, skip_network=True, module_names=["missing.module"])
 
     assert result["status"] == "NOT_READY"
     assert any("missing.module" in item for item in result["failed_checks"])
@@ -84,7 +84,7 @@ def test_import_failure_makes_not_ready(tmp_path: Path) -> None:
 def test_broken_workflow_state_makes_not_ready(tmp_path: Path) -> None:
     root = make_minimal_project(tmp_path)
     (root / "reports" / "workflow" / "current_workflow_state.json").write_text("{broken", encoding="utf-8")
-    result = evaluate_setup(root=root, env={"TUSHARE_TOKEN": "abc123xyz"}, skip_network=True, module_names=[])
+    result = evaluate_setup(root=root, env={"HITHINK_FINANCE_API_KEY": "abc123xyz"}, skip_network=True, module_names=[])
 
     assert result["status"] == "NOT_READY"
     assert any("workflow state invalid" in item for item in result["failed_checks"])
@@ -133,7 +133,8 @@ def test_examples_do_not_contain_real_tokens_or_holdings() -> None:
 
     assert "real_token_value" not in combined
     assert "真实持仓样例" not in combined
-    assert "TUSHARE_TOKEN=" in env_example
+    assert "HITHINK_FINANCE_API_KEY" in env_example
+    assert "TUSHARE_TOKEN=" not in env_example
 
 
 def test_documented_commands_exist() -> None:
@@ -158,7 +159,7 @@ def test_windows_path_is_not_the_only_supported_environment() -> None:
 
 def test_new_clone_can_use_examples(tmp_path: Path) -> None:
     root = make_minimal_project(tmp_path)
-    result = evaluate_setup(root=root, env={"TUSHARE_TOKEN": "abc123xyz"}, skip_network=True, module_names=[])
+    result = evaluate_setup(root=root, env={"HITHINK_FINANCE_API_KEY": "abc123xyz"}, skip_network=True, module_names=[])
 
     assert result["status"] == "READY"
     assert not any(str(tmp_path) in item for item in result["recommended_actions"])

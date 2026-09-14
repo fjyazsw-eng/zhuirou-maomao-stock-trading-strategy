@@ -7,40 +7,123 @@
     "不真实下单",
     "不编造行情、价格或数据",
     "行情缺失时不输出正式买点",
-    "东方财富只做盘中临时补充，不能替代Tushare正式推荐"
+    "hithink-finance 为唯一主源，mootdx 仅分钟线；失败报错，不回退其他源"
   ],
   "freshness_gate": {
     "required_before_formal_recommendation": true,
-    "client": "scoring_system/tushare_client.py",
-    "apis": ["trade_cal", "daily", "daily_basic", "index_daily", "sw_daily"],
-    "must_report": ["latest_complete_trade_date", "api_rows", "data_source", "missing_or_stale_reason"],
+    "client": "scoring_system/market_data.py",
+    "apis": [
+      "a-share.calendar.trading-days",
+      "a-share.prices.historical",
+      "a-share.valuations.snapshot",
+      "a-share-index.prices.historical",
+      "a-share-index.catalog.ths-index-list"
+    ],
+    "must_report": [
+      "latest_complete_trade_date",
+      "api_rows",
+      "data_source",
+      "missing_or_stale_reason"
+    ],
     "on_failure": "数据异常或数据不足，当前不做新买入推荐。"
   },
   "modules": {
     "A": {
       "name": "空仓选股",
-      "triggers": ["推荐", "买什么", "空仓", "候选", "市场日报", "板块个股"],
-      "chain": ["市场", "一级板块", "细分方向", "板块健康度", "个股角色", "买点等级", "操作"],
-      "windows": ["1日", "3日", "5日", "10日", "20日", "30日"],
+      "triggers": [
+        "推荐",
+        "买什么",
+        "空仓",
+        "候选",
+        "市场日报",
+        "板块个股"
+      ],
+      "chain": [
+        "市场",
+        "一级板块",
+        "细分方向",
+        "板块健康度",
+        "个股角色",
+        "买点等级",
+        "操作"
+      ],
+      "windows": [
+        "1日",
+        "3日",
+        "5日",
+        "10日",
+        "20日",
+        "30日"
+      ],
       "default_trial_size": "100股",
       "weak_market_limit": "最多1只正式推荐和1只替补",
       "extremely_weak_action": "不推荐新买入",
-      "disallow": ["单日异动给A/B", "缺3日或5日连续性给A/B", "后排作为正式推荐", "为了凑数量硬推"]
+      "disallow": [
+        "单日异动给A/B",
+        "缺3日或5日连续性给A/B",
+        "后排作为正式推荐",
+        "为了凑数量硬推"
+      ]
     },
     "B": {
       "name": "持仓复盘",
-      "triggers": ["持仓", "成本", "补仓", "减仓", "卖出", "止损", "换股"],
-      "chain": ["指数大盘", "持仓一级板块", "细分板块", "板块健康度", "核心股状态", "个股位置", "资金换手量能", "基本面公告排雷", "盈亏成本", "明日操作", "否决触发条件"],
-      "actions": ["持有不动", "补仓100股", "暂不补仓", "卖出X股", "卖出全部", "准备换股"],
+      "triggers": [
+        "持仓",
+        "成本",
+        "补仓",
+        "减仓",
+        "卖出",
+        "止损",
+        "换股"
+      ],
+      "chain": [
+        "指数大盘",
+        "持仓一级板块",
+        "细分板块",
+        "板块健康度",
+        "核心股状态",
+        "个股位置",
+        "资金换手量能",
+        "基本面公告排雷",
+        "盈亏成本",
+        "明日操作",
+        "否决触发条件"
+      ],
+      "actions": [
+        "持有不动",
+        "补仓100股",
+        "暂不补仓",
+        "卖出X股",
+        "卖出全部",
+        "准备换股"
+      ],
       "share_rule": "当前只持有100股时，必须写持有不动或卖出100股，不写模糊减仓。"
     },
     "C": {
       "name": "盘中一次性否决检测",
-      "triggers": ["现在", "盘中", "到价", "今天能不能买", "今天能不能卖", "一次性检测"],
-      "not_for": ["重新选股", "完整复盘"],
-      "data": "Tushare上一完整交易日为正式基础，东方财富为当日临时补充。",
-      "holding_final_actions": ["持有100股", "卖出100股"],
-      "new_buy_final_actions": ["买第一优先100股", "买第二优先100股", "买备选100股", "今天不买"]
+      "triggers": [
+        "现在",
+        "盘中",
+        "到价",
+        "今天能不能买",
+        "今天能不能卖",
+        "一次性检测"
+      ],
+      "not_for": [
+        "重新选股",
+        "完整复盘"
+      ],
+      "data": "同花顺主源；mootdx 仅补充分钟线。",
+      "holding_final_actions": [
+        "持有100股",
+        "卖出100股"
+      ],
+      "new_buy_final_actions": [
+        "买第一优先100股",
+        "买第二优先100股",
+        "买备选100股",
+        "今天不买"
+      ]
     }
   },
   "channel_style": {

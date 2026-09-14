@@ -125,7 +125,7 @@ def build_verified_market_snapshot(
         "generated_at": datetime.now().isoformat(timespec="seconds"),
         "snapshot_status": "BLOCKED",
         "trade_date": trade_date,
-        "data_source": "tushare_direct",
+        "data_source": "hithink-finance",
         "freshness": freshness,
         "formal_recommendation_allowed": bool(freshness.get("formal_recommendation_allowed")),
         "data_is_latest_complete": bool(freshness.get("data_is_latest_complete")),

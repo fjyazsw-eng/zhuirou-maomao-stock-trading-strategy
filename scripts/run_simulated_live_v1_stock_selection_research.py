@@ -1,4 +1,5 @@
 from __future__ import annotations
+from scoring_system.tushare_client import credential_marker
 
 import argparse
 import json
@@ -46,16 +47,16 @@ def load_dotenv() -> None:
 
 def get_tushare_pro() -> Any:
     load_dotenv()
-    token = os.environ.get("TUSHARE_TOKEN", "") or os.environ.get("TUSHARE_TOKEN_PRO", "")
+    token = credential_marker() or credential_marker()
     if not token:
-        raise RuntimeError("TUSHARE_TOKEN 缺失，无法执行真实行情研究。")
+        raise RuntimeError("HITHINK_FINANCE_API_KEY 缺失，无法执行真实行情研究。")
     try:
         from scoring_system.network_env import clear_bad_tushare_proxy
     except Exception:
         clear_bad_tushare_proxy = None
     if clear_bad_tushare_proxy:
         clear_bad_tushare_proxy()
-    import tushare as ts
+    from scoring_system import tushare_client as ts
 
     return ts.pro_api(token)
 

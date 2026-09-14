@@ -1,4 +1,5 @@
 from __future__ import annotations
+from scoring_system.tushare_client import credential_marker
 
 import json
 import os
@@ -6,7 +7,7 @@ import sys
 from pathlib import Path
 
 import pandas as pd
-import tushare as ts
+from scoring_system import tushare_client as ts
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -25,7 +26,7 @@ DATES = ["20260625", "20260626", "20260629", "20260630", "20260701"]
 
 
 def main() -> None:
-    pro = ts.pro_api(os.getenv("TUSHARE_TOKEN"))
+    pro = ts.pro_api(credential_marker())
     try:
         pro._DataApi__timeout = 120
     except Exception:

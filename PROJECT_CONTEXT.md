@@ -1,3 +1,7 @@
+
+## 股票数据源强制入口
+
+先读取仓库根目录 `DATA_SOURCES.md`。所有 A 股取数强制 hithink-finance -> mootdx（仅分钟线），无 Tushare 或其他自动回退。旧报告/备份不是现行取数规则。
 # 股票AI交易助手项目上下文
 
 最后整理日期：2026-07-10
@@ -92,7 +96,7 @@ API 模式不会自动读取 ChatGPT/Codex 账户模式里的历史聊天记录�
 - 原则是“内部复杂判断，外部简洁输出”
 - 默认只输出结论、动作、仓位、条件，不展开完整推导
 - 默认结论尽量明确，不轻易只给“观望”
-- 若数据异常，优先反馈是否为 Tushare 问题
+> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，mootdx 仅分钟线，失败报错。
 
 ## 硬边界
 
@@ -136,19 +140,19 @@ API 模式不会自动读取 ChatGPT/Codex 账户模式里的历史聊天记录�
 
 说明：单票 20% 和总仓位 60% 的旧限制已取消；当前只影响模拟账户，不代表真实账户授权。
 
-## 当前 Tushare 接入口径
+> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，mootdx 仅分钟线，失败报错。
 
 - 统一客户端：`scoring_system/tushare_client.py`
-- 当前优先配置：若 `.env` 存在 `TUSHARE_REPLAY_API_KEY`，优先走 replay API
-- 回退逻辑：若未配置 replay key，则继续走 `TUSHARE_TOKEN` / `TUSHARE_TOKEN_PRO`
+> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，mootdx 仅分钟线，失败报错。
+> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，mootdx 仅分钟线，失败报错。
 - 适用要求：后续所有 Codex 对话、API 模式和脚本接入，优先复用这个统一客户端，不再各脚本散写不同接法
 - 行业成分当前主接口：申万行业成分使用 `index_member_all`，中信行业成分使用 `ci_index_member`
 - 旧 `index_member` 当前不作为在线主接口；本地 SQLite/CSV 中仍可保留 `index_member` 表名作为兼容缓存结构
 - 行业成分用于补强板块归属、扩散度、龙头/后排和盯盘环境判断，不自动改变已冻结的评分权重、买卖标签或仓位规则
 - 公司基本面当前可用：`stock_company`、`income`、`balancesheet`、`cashflow`、`fina_indicator`；只用于轻量排雷、主营匹配和财务质量检查
-- 当前不依赖 Tushare 做新闻公告和实时价：`anns_d`、`major_news`、`news`、`realtime_quote`、`stk_mins` 当前权限或通道不足；盘中实时盯盘继续用东方财富只读分时补充
-- 铁律：当 Tushare 能确认今天是交易日，但当天 `daily` / `daily_basic` / `index_daily` 尚未出数时，必须用东方财富只读分时、快照、板块分时和参照股补齐当天临时行情视图；输出必须明确标记“东方财富盘中/当日临时数据”，不得把它伪装成 Tushare 完整日线。盘后完整复盘、正式日线指标和历史收益仍以 Tushare 最新完整交易日为准。
-- 推荐接口铁律：正式筛选、排序、板块强弱、个股推荐资格、买点等级和仓位建议必须严格以 Tushare 最新完整交易日为主口径；Tushare 接入统一走 `scoring_system/tushare_client.py`，不得散写新接口。东方财富只允许作为只读盘中临时补充，用于说明当天分时状态，不得单独升级板块评级、买点等级、候选资格或仓位上限。若 Tushare 关键数据缺失，必须说明缺口，不得用其他来源拼成正式结论。
+> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，mootdx 仅分钟线，失败报错。
+> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，mootdx 仅分钟线，失败报错。
+> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，mootdx 仅分钟线，失败报错。
 - 板块龙头个股推荐铁律：必须按“大盘 -> 一级板块 -> 细分方向 -> 板块结构 -> 个股 -> 买点 -> 操作”顺序；不得从旧观察池、持仓池、人工映射池直接跳到个股。默认观察 `1日 / 3日 / 5日 / 10日 / 20日`，板块至少看近 5 日或 10 日是否跑赢大盘，个股必须看是否持续跑赢细分方向、一级板块和市场。板块必须拆成龙头、前排/中军、补涨、后排；只推荐龙头、前排/中军、低位补涨核心，后排只提示风险。
 - 盘中盯盘按完整情景策略处理：未到价、到价未站稳、承接未确认、综合确认、确认后转强、直接突破未回踩、突破后回踩成功、突破后回落失效、数据异常分别给出不同提醒动作
 - 观察股若直接高于观察区但没有回踩站稳，盯盘统一提醒 `ABOVE_ZONE`：突破观察、不追高、等第一次回踩不破后的二次买点；不把它当作原低吸计划触发
@@ -283,7 +287,7 @@ API 模式不会自动读取 ChatGPT/Codex 账户模式里的历史聊天记录�
 - 工程说明：`REALTIME_WATCH_MONITOR.md`
 - 配置：`config/realtime_watchlist.json`
 - 入口：`scripts/run_realtime_watch_monitor.py`
-- 数据：东方财富一分钟分时、盘中资金流、板块分时和参照股；历史成交基准走统一 Tushare 客户端
+> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，mootdx 仅分钟线，失败报错。
 - 消息：通过 CC Connect 项目 `codex-weixin` 投递到活跃微信和飞书会话
 - 当前监控：以本地只读配置为准
 - 当前持仓保护监控：以本地私密配置为准，公开文档不记录真实持仓和成本

@@ -1,4 +1,4 @@
-﻿"""Deep industry analysis with SW2021 L1/L2, turnover changes and moneyflow.
+"""Deep industry analysis with SW2021 L1/L2, turnover changes and moneyflow.
 
 This is a production feature, not an interface smoke test. It builds:
 - L1 industry analysis table
@@ -10,6 +10,7 @@ No token printing. No brokerage access. No trading instruction.
 """
 
 from __future__ import annotations
+from scoring_system.tushare_client import credential_marker
 
 import argparse
 import os
@@ -19,7 +20,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 import pandas as pd
-import tushare as ts
+from scoring_system import tushare_client as ts
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent
@@ -42,9 +43,9 @@ MONEYFLOW_FIELDS = ["ts_code", "trade_date", "net_mf_amount"]
 
 
 def get_pro() -> object:
-    token = os.getenv("TUSHARE_TOKEN")
+    token = credential_marker()
     if not token:
-        raise RuntimeError("TUSHARE_TOKEN 不存在")
+        raise RuntimeError("HITHINK_FINANCE_API_KEY 不存在")
     return ts.pro_api(token)
 
 

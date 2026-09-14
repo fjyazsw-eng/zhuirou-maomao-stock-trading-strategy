@@ -1,3 +1,7 @@
+
+## 股票数据源强制入口
+
+先读取仓库根目录 `DATA_SOURCES.md`。所有 A 股取数强制 hithink-finance -> mootdx（仅分钟线），无 Tushare 或其他自动回退。旧报告/备份不是现行取数规则。
 # 股票AI交易助手实时盯盘
 
 ## 定位
@@ -43,9 +47,9 @@
 - `DATA_STALE`：行情日期不是今天，不做盘中判断。
 - `DATA_ERROR`：数据异常，不编造结论。
 
-东方财富分钟接口若没有提供足够的同分钟历史，系统使用 Tushare 前5日完整成交额和当前交易时段进度计算估算值，并在机器报告中标记 `tushare_5d_elapsed_projection`。
+> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，mootdx 仅分钟线，失败报错。
 
-当前 Tushare 权限适合提供盘后行情、行业成分、资金、复权和公司基本面；盘中实时价和分钟线不作为默认可用能力。盯盘实时价格仍使用东方财富只读接口，避免把非实时数据误当盘中状态。
+> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，mootdx 仅分钟线，失败报错。
 
 ## 突破未回踩提醒
 
@@ -88,7 +92,7 @@
 
 ## 行业成分增强
 
-盯盘模块会在配置开启 `industry_profile.enabled=true` 时，通过统一 Tushare 客户端补充行业画像：
+> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，mootdx 仅分钟线，失败报错。
 
 - 申万行业成分：`index_member_all`
 - 中信行业成分：`ci_index_member`

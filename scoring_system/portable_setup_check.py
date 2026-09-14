@@ -16,22 +16,18 @@ DEFAULT_MODULES = [
     "numpy",
     "yaml",
     "requests",
-    "tushare",
+    "mootdx",
     "scoring_system.workflow_state",
     "scoring_system.systemic_risk_gate",
     "scoring_system.hexagram_calibration",
     "scoring_system.workflow_orchestrator",
 ]
 
-SENSITIVE_TOKEN_KEYS = ("TUSHARE_REPLAY_API_KEY", "TUSHARE_TOKEN", "TUSHARE_TOKEN_PRO")
+SENSITIVE_TOKEN_KEYS = ("HITHINK_FINANCE_API_KEY",)
 
 
 def mask_secret(value: str) -> str:
-    if not value:
-        return ""
-    if len(value) <= 6:
-        return "***"
-    return f"{value[:3]}***{value[-3:]}"
+    return 'present' if value else ''
 
 
 def _load_env_file(root: Path) -> dict[str, str]:
@@ -117,7 +113,6 @@ def evaluate_setup(
         "requirements-dev.txt",
         ".env.example",
         "skills/stock-ai-workflow-controller/SKILL.md",
-        "reports/workflow/current_workflow_state.json",
         "config/project_config.example.yaml",
         "tests",
     ]:
@@ -129,18 +124,30 @@ def evaluate_setup(
 
     for module in module_names if module_names is not None else DEFAULT_MODULES:
         try:
-            importlib.import_module(module)
+            if module == "mootdx":
+                from importlib.metadata import version
+                version("mootdx")
+            else:
+                importlib.import_module(module)
             _add(passed, f"import:{module}")
         except Exception as exc:
             _add(failed, f"import failed:{module}:{type(exc).__name__}")
             _add(actions, "Install requirements and ensure commands run from the project root.")
 
-    token_key = next((key for key in SENSITIVE_TOKEN_KEYS if merged_env.get(key)), "")
-    if token_key:
-        _add(passed, f"token_present:{token_key}={mask_secret(str(merged_env[token_key]))}")
-    else:
-        _add(failed, "Tushare token missing")
-        _add(actions, "Copy .env.example to .env and set TUSHARE_REPLAY_API_KEY or TUSHARE_TOKEN.")
+    try:
+        from scoring_system.market_data import credentials
+        if env is None:
+            _, credential_origin = credentials()
+            token_key = 'HITHINK_FINANCE_API_KEY'
+        else:
+            token_key = 'HITHINK_FINANCE_API_KEY' if env.get('HITHINK_FINANCE_API_KEY') else ''
+        if not token_key:
+            raise RuntimeError('missing')
+        _add(passed, 'HITHINK_FINANCE_API_KEY present (not yet auth-verified)')
+    except RuntimeError:
+        token_key = ''
+        _add(failed, 'HITHINK_FINANCE_API_KEY missing')
+        _add(actions, 'Set HITHINK_FINANCE_API_KEY in environment or user credentials.env.')
 
     state_path = root / "reports" / "workflow" / "current_workflow_state.json"
     if state_path.exists():
@@ -148,6 +155,9 @@ def evaluate_setup(
         _add(passed if ok else failed, message)
         if not ok:
             _add(actions, "Recreate workflow state from reports/workflow/current_workflow_state.example.json.")
+    else:
+        _add(warnings, "workflow state missing; create it from reports/workflow/current_workflow_state.example.json before live workflow steps")
+        _add(actions, "Create reports/workflow/current_workflow_state.json from the example state file.")
 
     report_dir = root / "reports"
     try:
@@ -162,14 +172,11 @@ def evaluate_setup(
     if skip_network:
         _add(passed, "network_checks_skipped")
     else:
-        if _tcp_connect("push2.eastmoney.com", 443, network_timeout_seconds):
-            _add(passed, "eastmoney_connectable")
+        if _tcp_connect("fuyao.aicubes.cn", 443, network_timeout_seconds):
+            _add(passed, "hithink_endpoint_connectable_not_auth_verified")
         else:
-            _add(warnings, "eastmoney connectivity check failed")
-        if token_key and _tcp_connect("ts.gyzcloud.top", 443, network_timeout_seconds):
-            _add(passed, "tushare_endpoint_connectable")
-        elif token_key:
-            _add(warnings, "tushare endpoint connectivity check failed")
+            _add(warnings, "hithink connectivity check failed")
+        _add(warnings, "Run market_data smoke for real auth and minute-protocol verification")
 
     if failed:
         status = "NOT_READY"
@@ -191,7 +198,7 @@ def main(argv: list[str] | None = None) -> int:
     import argparse
 
     parser = argparse.ArgumentParser(description="Portable setup check for the stock AI workflow.")
-    parser.add_argument("--skip-network", action="store_true", help="Skip Eastmoney and Tushare connectivity probes.")
+    parser.add_argument("--skip-network", action="store_true", help="Skip HiThink and mootdx connectivity probes.")
     args = parser.parse_args(argv)
     result = evaluate_setup(skip_network=args.skip_network)
     print(json.dumps(result, ensure_ascii=False, indent=2))
