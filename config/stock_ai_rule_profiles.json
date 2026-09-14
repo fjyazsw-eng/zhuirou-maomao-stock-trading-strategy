@@ -7,7 +7,7 @@
     "不真实下单",
     "不编造行情、价格或数据",
     "行情缺失时不输出正式买点",
-    "hithink-finance 为唯一主源，mootdx 仅分钟线；失败报错，不回退其他源"
+    "hithink-finance 为唯一主源，AKShare 新浪分钟线仅分钟线；失败报错，不回退其他源"
   ],
   "freshness_gate": {
     "required_before_formal_recommendation": true,
@@ -113,7 +113,7 @@
         "重新选股",
         "完整复盘"
       ],
-      "data": "同花顺主源；mootdx 仅补充分钟线。",
+      "data": "同花顺主源；AKShare 新浪分钟线仅补充分钟线。",
       "holding_final_actions": [
         "持有100股",
         "卖出100股"
@@ -132,3 +132,5 @@
     "local": "可展示数据来源、行数和必要表格"
   }
 }
+
+

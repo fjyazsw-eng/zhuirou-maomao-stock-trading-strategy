@@ -16,7 +16,7 @@ DEFAULT_MODULES = [
     "numpy",
     "yaml",
     "requests",
-    "mootdx",
+    "akshare",
     "scoring_system.workflow_state",
     "scoring_system.systemic_risk_gate",
     "scoring_system.hexagram_calibration",
@@ -124,9 +124,9 @@ def evaluate_setup(
 
     for module in module_names if module_names is not None else DEFAULT_MODULES:
         try:
-            if module == "mootdx":
+            if module == "akshare":
                 from importlib.metadata import version
-                version("mootdx")
+                version("akshare")
             else:
                 importlib.import_module(module)
             _add(passed, f"import:{module}")
@@ -198,7 +198,7 @@ def main(argv: list[str] | None = None) -> int:
     import argparse
 
     parser = argparse.ArgumentParser(description="Portable setup check for the stock AI workflow.")
-    parser.add_argument("--skip-network", action="store_true", help="Skip HiThink and mootdx connectivity probes.")
+    parser.add_argument("--skip-network", action="store_true", help="Skip HiThink and AKShare connectivity probes.")
     args = parser.parse_args(argv)
     result = evaluate_setup(skip_network=args.skip_network)
     print(json.dumps(result, ensure_ascii=False, indent=2))

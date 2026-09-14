@@ -1,7 +1,7 @@
 
 ## 股票数据源强制入口
 
-先读取仓库根目录 `DATA_SOURCES.md`。所有 A 股取数强制 hithink-finance -> mootdx（仅分钟线），无 Tushare 或其他自动回退。旧报告/备份不是现行取数规则。
+先读取仓库根目录 `DATA_SOURCES.md`。所有 A 股取数强制 hithink-finance -> akshare-sina-minute（仅分钟线），无 Tushare 或其他自动回退。旧报告/备份不是现行取数规则。
 # 赘肉猫猫的股票交易策略
 
 股票AI交易助手是一个本地运行的 A 股研究辅助项目，包含结构化分析和只读实时盯盘。它按市场、板块、核心股、个股、资金与成交、仓位和风险的顺序组织证据，并把事实、推断和触发条件分开。
@@ -10,7 +10,7 @@
 
 - 空仓咨询、持仓咨询、板块与候选分析。
 - 日报、层级报告和持仓风险提示。
-> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，mootdx 仅分钟线，失败报错。
+> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，AKShare 新浪分钟线仅分钟线，失败报错。
 - 用户确认方案后的只读盯盘与可选消息通知。
 - 无 Token、无数据库时可运行的固定脱敏离线 Demo。
 - 健康检查、自动测试、发布验收和跨平台 ZIP 清单。
@@ -46,7 +46,7 @@ Linux 和 macOS 将 Python 路径替换为 `.venv/bin/python`。
 
 复制 `.env.example` 为 `.env`，按需填写自己的凭据。默认数据库是 `data/sqlite/market_120d.sqlite`，外部数据库通过 `STOCK_AI_MARKET_DB` 和 `STOCK_AI_WALK_FORWARD_DB` 指定。缺少配置时必须明确降级，不得伪造数据。
 
-> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，mootdx 仅分钟线，失败报错。
+> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，AKShare 新浪分钟线仅分钟线，失败报错。
 
 ## 目录
 
@@ -73,3 +73,5 @@ python scripts/release_check.py
 ## 风险声明
 
 本项目只用于研究辅助和复盘。所有实际交易决定由用户自行作出并承担风险。
+
+

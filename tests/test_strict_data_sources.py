@@ -33,7 +33,7 @@ class GatewayTests(unittest.TestCase):
     def test_minute_count_is_bounded(self):
         with self.assertRaises(m.DataSourceError):m.minutes('600519.SH','1m',801)
     def test_all_frequencies(self):
-        self.assertEqual(m.MINUTE_FREQUENCIES,{'1m':8,'5m':0,'15m':1,'30m':2,'60m':3})
+        self.assertEqual(m.MINUTE_FREQUENCIES,{'1m':'1','5m':'5','15m':'15','30m':'30','60m':'60'})
     def test_retired_replay_disabled(self):
         with self.assertRaises(m.DataSourceError):legacy.ReplayDataApi('test-only')
         with self.assertRaises(m.DataSourceError):legacy.HttpPostDataApi('test-only','https://other.example')
@@ -42,13 +42,17 @@ class GatewayTests(unittest.TestCase):
     def test_old_cache_rejected(self):
         for source in ['tushare_direct','eastmoney_realtime',None]:
             with self.assertRaises(m.DataSourceError):m.require_current_source({'source':source})
-    def test_mootdx_cannot_label_daily(self):
-        with self.assertRaises(m.DataSourceError):m.require_current_source({'source':'mootdx','interval':'1d'})
+    def test_akshare_minute_cannot_label_daily(self):
+        with self.assertRaises(m.DataSourceError):m.require_current_source({'source':'akshare-sina-minute','interval':'1d'})
     def test_no_active_sdk_imports(self):
         import ast
         for folder in ['scoring_system','scripts','股票策略研究室/scripts']:
             for path in (m.ROOT/folder).rglob('*.py'):
                 for node in ast.walk(ast.parse(path.read_text(encoding='utf-8-sig'))):
                     if isinstance(node,ast.Import):
-                        self.assertFalse(any(a.name in {'tushare','akshare','baostock'} for a in node.names),str(path))
+                        banned = {'tushare','baostock'}
+                        if path.name != 'market_data.py':
+                            banned.add('akshare')
+                        self.assertFalse(any(a.name in banned for a in node.names),str(path))
 if __name__=='__main__':unittest.main()
+

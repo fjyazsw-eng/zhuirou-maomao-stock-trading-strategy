@@ -23,7 +23,7 @@ def make_minimal_project(tmp_path: Path) -> Path:
     (root / "scoring_system" / "__init__.py").write_text("", encoding="utf-8")
     (root / "requirements.txt").write_text("requests>=2\n", encoding="utf-8")
     (root / "requirements-dev.txt").write_text("pytest>=8\n", encoding="utf-8")
-    (root / ".env.example").write_text("HITHINK_FINANCE_API_KEY=\nMOOTDX_SERVER=\n", encoding="utf-8")
+    (root / ".env.example").write_text("HITHINK_FINANCE_API_KEY=\n", encoding="utf-8")
     (root / "skills" / "stock-ai-workflow-controller" / "SKILL.md").write_text("# controller\n", encoding="utf-8")
     state = {
         "workflow_version": "workflow_state_v1",
@@ -163,3 +163,4 @@ def test_new_clone_can_use_examples(tmp_path: Path) -> None:
 
     assert result["status"] == "READY"
     assert not any(str(tmp_path) in item for item in result["recommended_actions"])
+

@@ -1,7 +1,7 @@
 
 ## 股票数据源强制入口
 
-先读取仓库根目录 `DATA_SOURCES.md`。所有 A 股取数强制 hithink-finance -> mootdx（仅分钟线），无 Tushare 或其他自动回退。旧报告/备份不是现行取数规则。
+先读取仓库根目录 `DATA_SOURCES.md`。所有 A 股取数强制 hithink-finance -> akshare-sina-minute（仅分钟线），无 Tushare 或其他自动回退。旧报告/备份不是现行取数规则。
 # 股票AI交易助手实时盯盘
 
 ## 定位
@@ -47,9 +47,9 @@
 - `DATA_STALE`：行情日期不是今天，不做盘中判断。
 - `DATA_ERROR`：数据异常，不编造结论。
 
-> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，mootdx 仅分钟线，失败报错。
+> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，AKShare 新浪分钟线仅分钟线，失败报错。
 
-> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，mootdx 仅分钟线，失败报错。
+> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，AKShare 新浪分钟线仅分钟线，失败报错。
 
 ## 突破未回踩提醒
 
@@ -92,7 +92,7 @@
 
 ## 行业成分增强
 
-> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，mootdx 仅分钟线，失败报错。
+> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，AKShare 新浪分钟线仅分钟线，失败报错。
 
 - 申万行业成分：`index_member_all`
 - 中信行业成分：`ci_index_member`
@@ -144,3 +144,5 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts\install_realtime_wat
 用户可在微信、飞书或本地对话提供最新持仓和计划。股票AI交易助手先拟定新版保护位、风险线、修复位和转强位；只有用户明确确认后，才更新 `config/realtime_watchlist.json`。后台从下一轮开始读取并执行最新确认方案，旧方案不再作为提醒依据。
 
 配置支持热加载，不需要手动重启后台进程；文件更新后下一轮轮询自动生效。
+
+

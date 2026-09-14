@@ -1,7 +1,7 @@
 
 ## 股票数据源强制入口
 
-先读取仓库根目录 `DATA_SOURCES.md`。所有 A 股取数强制 hithink-finance -> mootdx（仅分钟线），无 Tushare 或其他自动回退。旧报告/备份不是现行取数规则。
+先读取仓库根目录 `DATA_SOURCES.md`。所有 A 股取数强制 hithink-finance -> akshare-sina-minute（仅分钟线），无 Tushare 或其他自动回退。旧报告/备份不是现行取数规则。
 # 股票AI交易助手项目上下文
 
 最后整理日期：2026-07-10
@@ -96,7 +96,7 @@ API 模式不会自动读取 ChatGPT/Codex 账户模式里的历史聊天记录�
 - 原则是“内部复杂判断，外部简洁输出”
 - 默认只输出结论、动作、仓位、条件，不展开完整推导
 - 默认结论尽量明确，不轻易只给“观望”
-> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，mootdx 仅分钟线，失败报错。
+> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，AKShare 新浪分钟线仅分钟线，失败报错。
 
 ## 硬边界
 
@@ -140,19 +140,19 @@ API 模式不会自动读取 ChatGPT/Codex 账户模式里的历史聊天记录�
 
 说明：单票 20% 和总仓位 60% 的旧限制已取消；当前只影响模拟账户，不代表真实账户授权。
 
-> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，mootdx 仅分钟线，失败报错。
+> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，AKShare 新浪分钟线仅分钟线，失败报错。
 
 - 统一客户端：`scoring_system/tushare_client.py`
-> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，mootdx 仅分钟线，失败报错。
-> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，mootdx 仅分钟线，失败报错。
+> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，AKShare 新浪分钟线仅分钟线，失败报错。
+> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，AKShare 新浪分钟线仅分钟线，失败报错。
 - 适用要求：后续所有 Codex 对话、API 模式和脚本接入，优先复用这个统一客户端，不再各脚本散写不同接法
 - 行业成分当前主接口：申万行业成分使用 `index_member_all`，中信行业成分使用 `ci_index_member`
 - 旧 `index_member` 当前不作为在线主接口；本地 SQLite/CSV 中仍可保留 `index_member` 表名作为兼容缓存结构
 - 行业成分用于补强板块归属、扩散度、龙头/后排和盯盘环境判断，不自动改变已冻结的评分权重、买卖标签或仓位规则
 - 公司基本面当前可用：`stock_company`、`income`、`balancesheet`、`cashflow`、`fina_indicator`；只用于轻量排雷、主营匹配和财务质量检查
-> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，mootdx 仅分钟线，失败报错。
-> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，mootdx 仅分钟线，失败报错。
-> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，mootdx 仅分钟线，失败报错。
+> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，AKShare 新浪分钟线仅分钟线，失败报错。
+> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，AKShare 新浪分钟线仅分钟线，失败报错。
+> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，AKShare 新浪分钟线仅分钟线，失败报错。
 - 板块龙头个股推荐铁律：必须按“大盘 -> 一级板块 -> 细分方向 -> 板块结构 -> 个股 -> 买点 -> 操作”顺序；不得从旧观察池、持仓池、人工映射池直接跳到个股。默认观察 `1日 / 3日 / 5日 / 10日 / 20日`，板块至少看近 5 日或 10 日是否跑赢大盘，个股必须看是否持续跑赢细分方向、一级板块和市场。板块必须拆成龙头、前排/中军、补涨、后排；只推荐龙头、前排/中军、低位补涨核心，后排只提示风险。
 - 盘中盯盘按完整情景策略处理：未到价、到价未站稳、承接未确认、综合确认、确认后转强、直接突破未回踩、突破后回踩成功、突破后回落失效、数据异常分别给出不同提醒动作
 - 观察股若直接高于观察区但没有回踩站稳，盯盘统一提醒 `ABOVE_ZONE`：突破观察、不追高、等第一次回踩不破后的二次买点；不把它当作原低吸计划触发
@@ -287,7 +287,7 @@ API 模式不会自动读取 ChatGPT/Codex 账户模式里的历史聊天记录�
 - 工程说明：`REALTIME_WATCH_MONITOR.md`
 - 配置：`config/realtime_watchlist.json`
 - 入口：`scripts/run_realtime_watch_monitor.py`
-> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，mootdx 仅分钟线，失败报错。
+> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，AKShare 新浪分钟线仅分钟线，失败报错。
 - 消息：通过 CC Connect 项目 `codex-weixin` 投递到活跃微信和飞书会话
 - 当前监控：以本地只读配置为准
 - 当前持仓保护监控：以本地私密配置为准，公开文档不记录真实持仓和成本
@@ -340,3 +340,5 @@ API 模式不会自动读取 ChatGPT/Codex 账户模式里的历史聊天记录�
 - 硬边界变化。
 
 不要把临时闲聊全文塞进本文件，只沉淀会影响后续工作的事实、决策、边界和入口。
+
+

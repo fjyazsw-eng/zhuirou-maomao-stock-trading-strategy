@@ -73,7 +73,7 @@ def _session(*args, **kwargs):
 
 def _get_json(*args, **kwargs):
     from scoring_system.market_data import DataSourceError
-    raise DataSourceError('External provider disabled; use hithink-finance / mootdx')
+    raise DataSourceError('External provider disabled; use hithink-finance / AKShare 新浪分钟线')
 
 
 
@@ -185,3 +185,5 @@ def aggregate_five_minute(bars: tuple[MinuteBar, ...] | list[MinuteBar]) -> list
             )
         )
     return sorted(result, key=lambda item: item.timestamp)
+
+

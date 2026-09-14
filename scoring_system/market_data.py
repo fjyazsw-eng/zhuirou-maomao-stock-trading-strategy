@@ -13,7 +13,7 @@ from urllib.error import HTTPError, URLError
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE_URL = 'https://fuyao.aicubes.cn'
-MINUTE_FREQUENCIES = {'1m': 8, '5m': 0, '15m': 1, '30m': 2, '60m': 3}
+MINUTE_FREQUENCIES = {'1m': '1', '5m': '5', '15m': '15', '30m': '30', '60m': '60'}
 ENDPOINTS = json.loads((ROOT / 'config/data_endpoints.json').read_text(encoding='utf-8'))
 
 class DataSourceError(RuntimeError):
@@ -80,56 +80,48 @@ def snapshot(thscode):
 
 def minutes(thscode, interval='1m', count=5):
     if interval not in MINUTE_FREQUENCIES or not 1 <= count <= 800:
-        raise DataSourceError('mootdx: interval must be 1m/5m/15m/30m/60m; count must be 1..800')
+        raise DataSourceError('akshare-sina-minute: interval must be 1m/5m/15m/30m/60m; count must be 1..800')
     if not re.fullmatch(r'\d{6}\.(SH|SZ)', thscode):
-        raise DataSourceError('mootdx: requires a verified SH/SZ security code; other markets not validated')
+        raise DataSourceError('akshare-sina-minute: requires a verified SH/SZ security code; other markets not validated')
     try:
-        # Keep the library cache inside this project, never write to the user home.
-        from unittest.mock import patch
-        cache = ROOT / '.cache'
-        cache.mkdir(parents=True, exist_ok=True)
-        with patch('pathlib.Path.home', return_value=cache):
-            from mootdx.quotes import Quotes
-            import mootdx.config
-        conf = cache / '.mootdx/config.json'
-        mootdx.config.CONF = str(conf)
-        if not conf.exists():
-            conf.write_text(json.dumps(mootdx.config.settings), encoding='utf-8')
-        kwargs = dict(market='std', server=('110.41.147.114', 7709), timeout=5, heartbeat=False, auto_retry=False, raise_exception=True)
-        host = os.environ.get('MOOTDX_SERVER')
-        if host:
-            address, port = host.rsplit(':', 1)
-            kwargs['server'] = (address, int(port))
-        client = Quotes.factory(**kwargs)
-        try:
-            frame = client.bars(symbol=thscode[:6], frequency=MINUTE_FREQUENCIES[interval], start=0, offset=count)
-        finally:
-            client.close()
+        import akshare as ak
+
+        prefix = 'sh' if thscode.endswith('.SH') else 'sz'
+        frame = ak.stock_zh_a_minute(symbol=prefix + thscode[:6], period=MINUTE_FREQUENCIES[interval], adjust='')
+        rename = {
+            'day': 'datetime',
+            'volume': 'vol',
+        }
+        frame = frame.rename(columns=rename)
         required = {'datetime', 'open', 'high', 'low', 'close', 'vol', 'amount'}
         if frame is None or frame.empty or not required.issubset(frame.columns):
-            raise DataSourceError('mootdx: empty or malformed minute data; no fallback')
+            raise DataSourceError('akshare-sina-minute: empty or malformed minute data; no fallback')
+        frame = frame[list(required)].copy()
         frame = frame.sort_values('datetime')
+        for column in ['open', 'high', 'low', 'close', 'vol', 'amount']:
+            frame[column] = frame[column].astype(float)
         if frame[list(required)].isnull().any().any() or (frame['close'] <= 0).any():
-            raise DataSourceError('mootdx: invalid minute values; no fallback')
-        rows = json.loads(frame[list(sorted(required))].to_json(orient='records', date_format='iso'))
-        return {'source': 'mootdx', 'thscode': thscode, 'interval': interval, 'adjust': 'none',
+            raise DataSourceError('akshare-sina-minute: invalid minute values; no fallback')
+        frame = frame.tail(count)
+        rows = json.loads(frame[['datetime', 'open', 'high', 'low', 'close', 'vol', 'amount']].to_json(orient='records', date_format='iso'))
+        return {'source': 'akshare-sina-minute', 'thscode': thscode, 'interval': interval, 'adjust': 'none',
                 'volume_unit': 'lot', 'amount_unit': 'CNY', 'timezone': 'Asia/Shanghai',
                 'fetched_at': datetime.now(timezone.utc).isoformat(), 'data': rows}
     except DataSourceError:
         raise
     except Exception as exc:
-        raise DataSourceError(f'mootdx: {type(exc).__name__}; no fallback') from None
+        raise DataSourceError(f'akshare-sina-minute: {type(exc).__name__}; no fallback') from None
 
 def require_current_source(payload):
     source = payload.get('source') or payload.get('data_source') or payload.get('quote_data_source')
-    if source not in {'hithink-finance', 'mootdx'}:
+    if source not in {'hithink-finance', 'akshare-sina-minute'}:
         raise DataSourceError('Cached data source is retired or unknown; fetch fresh data from configured sources')
-    if source == 'mootdx' and payload.get('interval') not in MINUTE_FREQUENCIES:
-        raise DataSourceError('mootdx may only supply minute bars')
+    if source == 'akshare-sina-minute' and payload.get('interval') not in MINUTE_FREQUENCIES:
+        raise DataSourceError('AKShare Sina may only supply minute bars')
     return payload
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(description='Strict hithink-finance / mootdx data gateway')
+    parser = argparse.ArgumentParser(description='Strict hithink-finance / AKShare Sina minute data gateway')
     parser.add_argument('capability', choices=sorted(ENDPOINTS) + ['minutes', 'smoke', 'auth-status'])
     parser.add_argument('--thscode', default='600519.SH')
     parser.add_argument('--interval', default='1m', choices=MINUTE_FREQUENCIES)
@@ -143,7 +135,7 @@ def main(argv=None):
             result = {'present': True, 'origin': origin, 'availability': 'not_tested'}
         elif args.capability == 'smoke':
             result = {}
-            for name, fn in [('hithink-finance', lambda: snapshot(args.thscode)), ('mootdx', lambda: minutes(args.thscode, args.interval, args.count))]:
+            for name, fn in [('hithink-finance', lambda: snapshot(args.thscode)), ('akshare-sina-minute', lambda: minutes(args.thscode, args.interval, args.count))]:
                 try:
                     result[name] = {'ok': True, 'result': fn()}
                 except DataSourceError as exc:

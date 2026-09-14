@@ -1,7 +1,7 @@
 
 ## 股票数据源强制入口
 
-先读取仓库根目录 `DATA_SOURCES.md`。所有 A 股取数强制 hithink-finance -> mootdx（仅分钟线），无 Tushare 或其他自动回退。旧报告/备份不是现行取数规则。
+先读取仓库根目录 `DATA_SOURCES.md`。所有 A 股取数强制 hithink-finance -> akshare-sina-minute（仅分钟线），无 Tushare 或其他自动回退。旧报告/备份不是现行取数规则。
 # 股票AI交易助手安装与恢复
 
 支持 Python `>=3.11,<3.14`，Windows、Linux 和 macOS 均可使用。以下命令以 Windows PowerShell 为例。
@@ -34,8 +34,8 @@ python -m venv .venv
 - 默认数据库：`data/sqlite/market_120d.sqlite`。
 - 外部市场数据库：设置 `STOCK_AI_MARKET_DB`。
 - Walk-forward 数据库：设置 `STOCK_AI_WALK_FORWARD_DB`。
-> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，mootdx 仅分钟线，失败报错。
-> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，mootdx 仅分钟线，失败报错。
+> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，AKShare 新浪分钟线仅分钟线，失败报错。
+> 数据源规则已替换：统一遵循仓库根目录 DATA_SOURCES.md；hithink-finance 主源，AKShare 新浪分钟线仅分钟线，失败报错。
 
 ## 消息渠道
 
@@ -52,3 +52,5 @@ python -m venv .venv
 ```
 
 缺少 score 或 decision 前置文件时，相关阶段会标记 `SKIPPED`，整体返回 `PARTIAL` 或 `BLOCKED`，不会报告不存在的成功产物。
+
+

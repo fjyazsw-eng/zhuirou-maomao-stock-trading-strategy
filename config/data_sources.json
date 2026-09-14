@@ -1,6 +1,6 @@
 {
   "primary": "hithink-finance",
-  "minute_only": "mootdx",
+  "minute_only": "akshare-sina-minute",
   "minute_intervals": [
     "1m",
     "5m",

@@ -9,7 +9,7 @@ paths:
 data_sources:
   primary: hithink-finance
   key_env: HITHINK_FINANCE_API_KEY
-  minute_only: mootdx
+  minute_only: akshare-sina-minute
   minute_intervals: [1m, 5m, 15m, 30m, 60m]
   fallback: []
   on_failure: error
